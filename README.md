@@ -23,12 +23,6 @@ maps look different to JavaScript!
 (a,b,c)==(0:a,1:b,2:c) // like js 'objects'
 (a,b,c)==[a,b,c] iff a,b,c are constant
 ```
-unbound code gets executed on the spot
-```
-{if(x<3)x++;x+x}
-{1,2,3} == 3 !!!
-{1,2,f} == f() !!!
-```
 blocks can be applied to blocks or evaluated via 'argument' maps:
 ```
 a={x+x}
