@@ -23,6 +23,7 @@ maps look different to JavaScript!
 (a,b,c)==(0:a,1:b,2:c) // like js 'objects'
 (a,b,c)==[a,b,c] iff a,b,c are constant
 ```
+
 blocks can be applied to blocks or evaluated via 'argument' maps:
 ```
 a={x+x}
@@ -62,12 +63,14 @@ to test:
 test == 'ok'
 ```
 
-methods can be referenced via proceeding 'to' keyword
+methods can be (de)referenced via proceeding 'to' keyword, similar to #symbol in ruby or method.name in python
 ```
-my_result=test // 'ok'
+my_result=test // 'ok', invoked
 my_funk=to test // the method
-methods are passed as symbols to functions that expect  acts or blocks
-bigger={$1>$0}
+```
+methods are passed as symbols to functions that expect acts or blocks
+```
+bigger = { $1 > $0 }
 to sort array by block{…}
 sort([3,2,1],bigger)
 ```
@@ -85,15 +88,20 @@ keep in mind that blocks can be parameterized with arguments (see above). those 
 one nice way to think about 'blocks' is that they are blocking execution until needed:
 ```
 x=2
-a=x+x
+a=x+x // eval on the spot
 b:=x+x
 c={x+x}
 d={x+x}()
-x=3
+
 a == 4
-b == 6
-c == 6
+b == ${x+x} == 4  // soft symbol
+c == {x+x} // symbolical
+c() == 4
 d == 4
+
+x=3
+b == 6 // eval on the spot
+c() == 6
 ```
 
 ```
@@ -107,12 +115,27 @@ f=(){x+x}  error x is neither an argument nor a global
 f2(){x+x}  error x is neither an argument nor a global
 g={x+x}  // ok for now
 ```
-classes
+all objects can act as classes (like js, really?)
 ```
 x={a:1}
-y<x
+y extends x
 y.a == 1
+y.b = 2
 
 Circle={number radius,area:radius*radius}
+Circle(radius=3).area == 9 # no 'new'
 
 ```
+
+
+
+Preferably '=' should be used for leaves and ':' for nodes with children.
+color=blue color:{blue dark}
+As in js, even lists and entity/maps can be unified:
+```
+[a b c]={1:a 2:b 3:c}
+{a:1 b:2 c:3}=[a:1 b:2 c:3] // todo hash as list of pairs as in kotlin
+{a b c}=[a b c]
+```
+A list is just a special entity/map in which its keys are numbers
+A map is just a special list in which its entries are pairs.
