@@ -1,11 +1,58 @@
-[Angle script](https://github.com/pannous/angle.js)  browser variant of the [angle](https://github.com/pannous/angle) programming language inspired by [XTalk](https://en.wikipedia.org/wiki/XTalk)
+[Angle script](https://github.com/pannous/angle.js) is the browser variant of the [angle](https://github.com/pannous/angle) programming language, interpreting a modern syntax in javascript, compiling to native webassembly.
 
-lisp with optional sigils `[({;$})]`
+Angle is **optionally speakable**:  
+`assert two minus 1½ equals 0.5`
 
-unified expressions
-everything acts as an
+Angle is **optionally typed**:  
+  `x=1;int y=2;number z=π²; assert x,y,z are numbers`
 
-unified architecture blocks and lists and maps:
+Angle has **semantic indexing**:  
+`assert 3rd word in 'hi my friend' is 'friend'`
+
+Angle does what we call **matching by type name**  
+```
+To delete mail:
+  move that mail to trash folder
+end
+```
+Here 'mail' acts as argument name and argument type at once.  
+No more Java style `Mail mail=new Mail().getMail();` never again with angle!  
+
+
+Angle has **contextual keywords** *it* …:
+```
+for all mails by peter: 
+   if its subject contains 'SPAM':
+      mark it as read 
+```
+the last example translates to ruby:  
+`mails(by: Peter).each{|it| it.mark(:read) if it.subject.match('SPAM')}`
+
+
+Angle uses **mark** as data and code format:
+```
+cat{
+    size:3
+    color:{r=1 g=0 b=0}
+    form{
+        dimensions = (3,size*2)
+    }
+}
+```
+All code is data and all data can be 'executed':
+`cat.size=4; cat().dimensions is (3,8)`
+
+*constant* data is evaluated ('reduced') immediately.
+
+These are the basics, some future refinements can be read [[later.md]]
+
+Speakable lisp with less parentheses, brackets and optional sigils `[({;$})]`
+inspired by [XTalk](https://en.wikipedia.org/wiki/XTalk)
+
+everything acts is an expressions
+everything acts is an object
+
+unified architecture combines blocks and lists and maps:
 
 blocks `{x+y,x>1}` `{1,2,3}` are evaluated lazily
 
