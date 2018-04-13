@@ -1,6 +1,6 @@
 let {parser}=require('./angle_base_test')
 let {emit}=require('../emitter')
-
+let ast = require('../ast')
 class EmitterTest extends (ParserBaseTest) {
 	setUp() {
 		if ('use_tree' in process.env) {
@@ -17,6 +17,11 @@ class EmitterTest extends (ParserBaseTest) {
 
 	test_emit() {
 		emit(2);
+	}
+
+	test_primitives() {
+		assert_result_emitted(new ast.BinOp(2, ast.Add, 2), 4)
+		// emit(new ast.BinOp(2,ast.Add,2));
 	}
 
 		test_basic(){
@@ -202,5 +207,10 @@ class EmitterTest extends (ParserBaseTest) {
 		assert_equals(parse(`c=0;\nwhile c<3:\nc++;\nif c>1 then beep;\ndone`), 'beeped')
 	}
 }
-exports.test_type_cast_error=new EmitterTest().test_emit
-// exports.test_type_cast_error=new EmitterTest().test_type_cast_error
+
+current = new EmitterTest().test_primitives
+module.exports.test_current = ok => {
+	current && current();
+	ok.done()
+}
+// register(EmitterTest, module) // ALL tests

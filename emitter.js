@@ -1,4 +1,8 @@
+// import {Param} from "./ast"; ES7
+
 Binaryen=require('binaryen')
+let ast = require('./ast')
+let {Add} = require('./ast')
 // Binaryen.setAPITracing(true)
 // Binaryen.setAPITracing(false)
 
@@ -80,19 +84,19 @@ function index(name) {
 	return index
 }
 
-function inc(name,amount=1) {
+function inc(name, amount=1) {
 	_set(name,add(_get(name),int(amount)));
 }
 
-function dec(name,amount=1) {
+function dec(name, amount=1) {
 	_set(name,sub(_get(name),int(amount)));
 }
 
 // call=wasm.callIndirect()
 call=wasm.call
-logi=x=>wasm.callImport("logi", [x], Binaryen.None)
+logi= x=>wasm.callImport("logi", [x], Binaryen.None)
 
-function toS(buffer,size=-1,index=0) {
+function toS(buffer, size=-1, index=0) {
 	let s = "";
 	//TextDecoder.decode()
 	for (let i = index; i < index + size && buffer[i]; ++i)
@@ -101,19 +105,33 @@ function toS(buffer,size=-1,index=0) {
 }
 
 class Visitor{
-
 	visit_number(n){
 		// if(isInt
 		return int(n)
 	}
 
+	/** @param c Add*/
+	visit_Add(c) {
+		return add(this.visit(c.left), this.visit(c.right))
+	}
+
+	visit_BinOp(c) {
+		let visitorMethod = this["visit_" + c.op.name];
+		if (!visitorMethod)
+			throw new Error("UNKNOWN BinOp " + kind)
+		else
+			return visitorMethod.bind(this)({left: c.left, right: c.right});
+	}
+
 	visit(code){
+		// that=this
 		let kind=typeof code
+		if (kind == "object") kind = code.constructor.name
 		let visitorMethod = this["visit_"+kind];
 		if(! visitorMethod )
 			throw new Error("UNKNOWN KIND "+kind)
 		else
-			return visitorMethod(code)
+			return visitorMethod.bind(this)(code)
 	}
 
 }
@@ -127,31 +145,33 @@ run = function run(wasm){
 	const compiled=new WebAssembly.Module(binary)
 	let imports = {
 		console:{
-			log:x=>console.log(toS(x)),
-			logi:x=>console.log(x),
-			logc:x=>console.log(char(x))
+			log: x=>console.log(toS(x)),
+			logi: x=>console.log(x),
+			logc: x=>console.log(char(x))
 		},
 		imports: {
 			getInt: _ => 42,
 		},
 	};
 	const instance = new WebAssembly.Instance(compiled, imports);// starts main!
+	return instance.exports.main()
 }
 
 emit=function emit(code){
 	visitor=new Visitor();
 	block=visitor.visit(code)
-	main=wasm.addFunction("main", _void_, [],
-		wasm.block("", [logi(block),])
+	// main=wasm.addFunction("main", _void_, [],
+	main = wasm.addFunction("main", vI, [],
+		wasm.block("", [wasm.return(block),])
 	);
 
 	wasm.addExport("main", "main");
-	wasm.setStart(main);
+	// wasm.setStart(main);
 // console.log(wasm.validate());// USELESS!!!
 // wasm.autoDrop();
 // wasm.optimize();
 	console.log(wasm.emitText());
-	run(wasm);
+	return run(wasm);
 }
 
 module.exports={emit}

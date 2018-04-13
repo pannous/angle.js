@@ -34,8 +34,10 @@ skip = (msg = "") => {
 	throw msg// new SkipException(msg);
 }
 assert_result_emitted = (prog, val) => {
-	let result = parse(prog);
-	assert(result == val)
+	let result
+	if (prog instanceof ast.AST) result = emit(prog)
+	else result = parse(prog);
+	assert_equals(result, val)
 	console.log(prog)
 	console.log(val)
 }
