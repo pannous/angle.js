@@ -829,4 +829,5 @@ module.exports = {
 	articles,
 	gerund,
 	parser,
+	do_cast
 }

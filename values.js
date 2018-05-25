@@ -277,7 +277,7 @@ let number = () => maybe(real) || maybe(fraction) || maybe(integer) || maybe(num
 function number_word() {
 	let n;
 	n = tokens(numbers)
-	return xstr(n).parse_number()
+	return str(n).parse_number()
 }
 
 function fraction() {
@@ -288,7 +288,7 @@ function fraction() {
 		if (f !== 0) return f;
 		throw new NotMatching(fraction)
 	} else {
-		m = xstr(m).parse_number()
+		m = str(m).parse_number()
 	}
 	the.result = (f + m)
 	return the.result;
@@ -315,9 +315,9 @@ function integer() {
 
 function real() {
 	let current_value, match;
-	match = the.string.match(/^\s*(-?\d*\\.\d+)/i)
+	match = the.string.match(/^\s*(-?\d*\.\d+)/i)
 	if (match) {
-		current_value = parseFloat(match.groups()[0])
+		current_value = parseFloat(match[0])
 		next_token(false)
 		return current_value;
 	}

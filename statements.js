@@ -1,4 +1,5 @@
 // "use strict"
+const word = require("./values").word;
 let {nth_item} = require("./expressions")
 
 let {property, evaluate_property} = require("./expressions")
@@ -34,8 +35,8 @@ let {
 } = require('./power_parser')
 let {action, do_evaluate, piped_actions} = require('./actions')
 let {Variable, Argument} = require('./nodes')
-let {expression, algebra, liste} = require('./expressions')
-let {articles} = require('./angle_parser')
+let {expression, algebra, liste,condition} = require('./expressions')
+let {articles,do_cast} = require('./angle_parser')
 let {loops} = require('./loops')
 let {
 	boole,
@@ -174,6 +175,7 @@ function assure_same_type_overwrite(var_, val, auto_cast = false) {
 
 
 function get_type(val) {
+	if(!val) return null
 	return Object.getPrototypeOf(val)
 	// val.prototype
 	// return mapType(typeof val) // Stupid js?

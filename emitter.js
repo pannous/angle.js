@@ -1,48 +1,44 @@
 // import {Param} from "./ast"; ES7
-
-Binaryen=require('binaryen')
+if(Binaryen=require('binaryen'))'binaryen ok' //node bug?
+let wasm = mod = new Binaryen.Module()
 let ast = require('./ast')
 let {Add} = require('./ast')
 // Binaryen.setAPITracing(true)
 // Binaryen.setAPITracing(false)
 
-let wasm = mod = new Binaryen.Module();
 let int=wasm.i32.const
-let float=wasm.f32.const
+// let float=wasm.f32.const
+let float=wasm.f64.const
 let f32 = Binaryen.f32;
+let f64 = Binaryen.f64;
 const i32=Binaryen.i32
 const int32=Binaryen.i32
 const chars=Binaryen.i32
 const I32=wasm.i32
+const F32=wasm.f32
+const F64=wasm.f64
 const local=wasm.getLocal
 // const fun=wasm.addFunction
 const add = I32.add
 const sub = I32.sub
+let drop = wasm.drop
 let none = Binaryen.None;
 
 str=(x)=>x.split('').map(function(x) { return x.charCodeAt(0) })
 // const memory = new WebAssembly.Memory({ initial: 10 });
 // const arrayBuffer = memory.buffer;
 // const buffer = new Uint8Array(arrayBuffer);
-wasm.setMemory(1, 256, "mem", [{
-	offset: int(10),
-	data: str("hello, world")
-}]);
+
 
 // Create a function type for  i32 (i32, i32)  (i.e., return i32, pass two
 // i32 params)
 // const iii = wasm.addFunctionType('iii', i32, [i32, i32]);
-const _void_ = _v_ = wasm.addFunctionType("v", none, []);
-const vI = wasm.addFunctionType("vI", i32, []);
-const iV = wasm.addFunctionType("iV",none , [i32]);
-// const i_ = wasm.addFunctionType("i_", none, [i32]);
-let drop=wasm.drop
+
 
 function vari(id) {
 	return wasm.getLocal(id)
 }
 
-wasm.addFunctionImport("logi", "console", "logi", iV);
 // wasm.addImport("logc", "console", "logc", i_);
 // getInt=wasm.callImport("getInt", [], i32)
 // log=x=>wasm.callImport("log", [x], none)
@@ -106,9 +102,14 @@ function toS(buffer, size=-1, index=0) {
 
 class Visitor{
 	visit_number(n){
-		// if(isInt
-		return int(n)
+		if(isInt(n)) return int(n)
+		else return float(n)
 	}
+
+	visit_string(s){
+		todo('visit_string');
+	}
+
 
 	/** @param c Add*/
 	visit_Add(c) {
@@ -123,6 +124,10 @@ class Visitor{
 			return visitorMethod.bind(this)({left: c.left, right: c.right});
 	}
 
+	visit_function(f){
+		todo("visit_function")
+	}
+
 	visit(code){
 		// that=this
 		let kind=typeof code
@@ -132,6 +137,10 @@ class Visitor{
 			throw new Error("UNKNOWN KIND "+kind)
 		else
 			return visitorMethod.bind(this)(code)
+	}
+
+	visit_Interpretation(i){
+		return this.visit(i.result)
 	}
 
 }
@@ -156,13 +165,33 @@ run = function run(wasm){
 	const instance = new WebAssembly.Instance(compiled, imports);// starts main!
 	return instance.exports.main()
 }
-
+function cast(block,type){
+	// if(type=='int')
+	//i32.trunc_s/f32
+	return I32.trunc_u.f64(block) // i32.trunc_u(block)
+}
 emit=function emit(code){
+	let wasm = mod = new Binaryen.Module()
+	if(!wasm.defaults) {
+		const _void_ = _v_ = wasm.addFunctionType("v", none, []);
+		vI = wasm.addFunctionType("vI", i32, []);
+		const iV = wasm.addFunctionType("iV", none, [i32]);
+		// wasm.addFunctionType("main_type", i32, [])
+// const i_ = wasm.addFunctionType("i_", none, [i32]);
+		wasm.addFunctionImport("logi", "console", "logi", iV);
+		wasm.defaults=true
+	}
+	wasm.setMemory(1, 256, "mem", [{
+		offset: int(10),
+		data: str("hello, world")
+	}]);
 	visitor=new Visitor();
 	block=visitor.visit(code)
+	if(block.type!=int)
+		block=cast(block,int)
 	// main=wasm.addFunction("main", _void_, [],
-	main = wasm.addFunction("main", vI, [],
-		wasm.block("", [wasm.return(block),])
+	main = wasm.addFunction("main", wasm.addFunctionType("main_type", i32, []), [],
+		wasm.block("main_block", [wasm.return(block),])
 	);
 
 	wasm.addExport("main", "main");
