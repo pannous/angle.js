@@ -12,7 +12,7 @@ function extension(url = 'http://pannous.net/extensions.js') {
 	const script = document.createElement('script');
 	script.src = url;
 	document.head.appendChild(script);
-}; //extension()
+} //extension()
 extensions_version = "1.2.6"
 try{
 if(typeof(XMLHttpRequest)=='undefined')
@@ -43,9 +43,11 @@ try {
 	JSON5 = require('json5'); // !!! http://json5.org/
 	json = json5= JSON5.parse
 	stringify = serialize = serial = JSON5.stringify
+	deserialize = JSON5.parse
 } catch (x) {
 	json = JSON.parse
 	stringify = serialize = serial = JSON.stringify
+	deserialize = JSON.parse
 }
 
 json = x => {
@@ -809,7 +811,6 @@ ForwardingHandler.prototype = {
 		for (let name in this.target) {
 			props.push(name);
 		}
-		;
 		return props;
 	},
 	iterate: function () {
@@ -923,9 +924,9 @@ if (typeof(window) == 'undefined') {
 		// print=process.stdout.write
 		fs = require("fs")
 		o = open = x => execAsync('open ' + (x || '')) // danger: read!!
-		r = read = load = path => require("fs").readFileSync(my(path||".")).toString()
+		r = read = load = path => deserialize(require("fs").readFileSync(my(path || ".")).toString())
 		w = wb = write = save = dump = dumb = writeFile =(data, file='data.bin') =>
-			isFile(data)?write(file,data):fs.writeFileSync(file, new Buffer(data),'utf8')
+			isFile(data) ? write(file, data) : fs.writeFileSync(file, serialize(data), 'utf8')
 		json5 = parse_json5 = (js5) => JSON5.parse(js5);
 		load_json5 = read_json5 = (file) => JSON5.parse(read(file));
 		dump_json5 = write_json5 = save_json5 = (file, obj) => save(file, JSON5.stringify(obj));

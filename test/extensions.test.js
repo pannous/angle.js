@@ -23,9 +23,8 @@ class ExtensionsTest extends (ParserBaseTest) {
 	}
 }
 
-current = new ExtensionsTest().
-	// test_dump
-	test_csv
+current = new ExtensionsTest().test_dump
+// test_csv
 
 module.exports.test_current = ok => {
 	current && current();
