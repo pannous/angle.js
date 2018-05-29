@@ -20,7 +20,6 @@ const F64=wasm.f64
 const local=wasm.getLocal
 // const fun=wasm.addFunction
 const add = I32.add
-const sub = I32.sub
 let drop = wasm.drop
 let none = Binaryen.None;
 
@@ -113,13 +112,49 @@ class Visitor{
 
 	/** @param c Add*/
 	visit_Add(c) {
-		return add(this.visit(c.left), this.visit(c.right))
+		return I32.add(this.visit(c.left), this.visit(c.right))
 	}
+
+	visit_Sub(c) {
+		return I32.sub(this.visit(c.left), this.visit(c.right))
+	}
+
+	visit_Mult(c) {
+		return I32.mul(this.visit(c.left), this.visit(c.right))
+	}
+
+	visit_Mod(c) {
+		return I32.sub(this.visit(c.left), I32.mul(this.visit(c.right), I32.div_u(this.visit(c.left), this.visit(c.right))));
+	}
+
+	visit_Div(c) {
+		return I32.div_s(this.visit(c.left), this.visit(c.right))
+	}
+
+	visit_And(c) {
+		return I32.and(this.visit(c.left), this.visit(c.right))
+	}
+
+	visit_Eq(c) {
+		return I32.eq(this.visit(c.left), this.visit(c.right))
+	}
+
+	visit_BitOr(c) {
+		return I32.or(this.visit(c.left), this.visit(c.right))
+	}
+
+	visit_Or(c) {
+		return I32.or(this.visit(c.left), this.visit(c.right))
+	}
+
+	visit_Ge(c) {
+		return I32.ge_s(this.visit(c.left), this.visit(c.right))
+	}// ...
 
 	visit_BinOp(c) {
 		let visitorMethod = this["visit_" + c.op.name];
 		if (!visitorMethod)
-			throw new Error("UNKNOWN BinOp " + kind)
+			throw new Error("UNKNOWN BinOp " + c.op.name)
 		else
 			return visitorMethod.bind(this)({left: c.left, right: c.right});
 	}
@@ -166,9 +201,10 @@ run = function run(wasm){
 	return instance.exports.main()
 }
 function cast(block,type){
-	// if(type=='int')
 	//i32.trunc_s/f32
-	return I32.trunc_u.f64(block) // i32.trunc_u(block)
+	if (type == int && block.type == float)
+		return I32.trunc_u.f64(block) // i32.trunc_u(block)
+	else return block
 }
 emit=function emit(code){
 	let wasm = mod = new Binaryen.Module()

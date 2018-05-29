@@ -37,6 +37,19 @@ class EmitterTest extends (ParserBaseTest) {
 		emit(2);
 	}
 
+	test_math() {
+		assert_emit(new ast.BinOp(2, ast.Add, 3), 5)
+		assert_emit(new ast.BinOp(2, ast.Sub, 4), -2)
+		assert_emit(new ast.BinOp(35, ast.Div, 7), 5)
+		assert_emit(new ast.BinOp(2, ast.Mult, 4), 8)
+		assert_emit(new ast.BinOp(5, ast.Mod, 4), 1)
+		assert_emit(new ast.BinOp(2, ast.And, 3), 2)
+		assert_emit(new ast.BinOp(2, ast.BitOr, 4), 6)
+		assert_emit(new ast.BinOp(2, ast.Or, 4), 6)
+		assert_emit(new ast.BinOp(2, ast.Eq, 2), 1)
+		// assert_emit(new ast.BinOp(2, ast.BitXor, 3), 5)
+	}
+
 	test_primitives() {
 		assert_emit(new ast.BinOp(2, ast.Add, 2), 4)
 		assert_emit(new ast.BinOp(2, ast.Add, 2), 4)
@@ -228,8 +241,8 @@ class EmitterTest extends (ParserBaseTest) {
 	}
 }
 
-current = new EmitterTest().
-	test_float
+current = new EmitterTest().test_math
+// test_float
 // test_primitives // ok
 // test_basic
 
