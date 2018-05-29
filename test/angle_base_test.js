@@ -31,8 +31,9 @@ class TestError extends Error {
 }
 
 skip = (msg) => {
-	msg = msg || "SKIPPING" + skip.callee
-	throw msg// new SkipException(msg);
+	msg = msg || "SKIPPING " + (skip.callee||'')
+	throw new SkipException(msg);
+	// throw msg// new SkipException(msg);
 }
 
 assert_has_no_error = (prog) => {
@@ -108,7 +109,6 @@ var callsite= require('callsite');
 registered = {}
 // module.exports.register =
 registerTest = function (instance,test, modulus) {
-
 	console.log("++++++++++++++++++++++++++++++")
 	console.log(test)
 	modulus.exports[test] = function(ok) {
@@ -120,7 +120,6 @@ registerTest = function (instance,test, modulus) {
 			ok.done()
 			console.log("OK")
 		} catch (exc) {
-
 			// callsite().forEach(function(site){
 			console.error(exc.message)
 			let keep=1

@@ -409,9 +409,6 @@ function toString(x) {
 
 function do_cast(x, typ) {
 	if (!typ) return x
-	if (typeof typ === "number" || (typ instanceof Number) || typ == Number || typ == Number.prototype) {
-		return float_(x);
-	}
 	// if (typ === "int") {}
 	typ = typ.toLowerCase()
 	if (typ == String || typ == String.prototype) return toString(x)();
@@ -422,6 +419,10 @@ function do_cast(x, typ) {
 	if (typ === "real") return parseFloat(x);
 	if (typ === "str") return toString(x)();
 	if (typ === "string") return toString(x)();
+
+	if (typeof typ === "number" || (typ instanceof Number) || typ == Number || typ == Number.prototype) {
+		return float_(x);
+	}
 	throw new WrongType("CANNOT CAST: %s (%s) TO %s ".format(x, Object.getPrototypeOf(x), typ));
 }
 

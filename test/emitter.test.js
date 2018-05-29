@@ -18,6 +18,7 @@ function assert_emit(prog, val) {
 // 	let code=(parser.rooty())
 // 	assert_result_is(emit(code),result);
 // }
+context.use_tree = true;
 
 class EmitterTest extends (ParserBaseTest) {
 	setUp() {
@@ -37,7 +38,7 @@ class EmitterTest extends (ParserBaseTest) {
 		emit(2);
 	}
 
-	test_math() {
+	test_math_ops() {
 		assert_emit(new ast.BinOp(2, ast.Add, 3), 5)
 		assert_emit(new ast.BinOp(2, ast.Sub, 4), -2)
 		assert_emit(new ast.BinOp(35, ast.Div, 7), 5)
@@ -50,10 +51,17 @@ class EmitterTest extends (ParserBaseTest) {
 		// assert_emit(new ast.BinOp(2, ast.BitXor, 3), 5)
 	}
 
+	test_math() {
+		assert_emit("2+3", 5)
+		assert_emit("2*3", 6)
+		assert_emit("2-3", -1)
+		assert_emit("12/3", 4)
+		assert_emit("12%5", 2)
+		// assert_emit("2/3", 2/3)
+	}
+
 	test_primitives() {
 		assert_emit(new ast.BinOp(2, ast.Add, 2), 4)
-		assert_emit(new ast.BinOp(2, ast.Add, 2), 4)
-		// emit(new ast.BinOp(2,ast.Add,2));
 	}
 
 	test_basic(){
@@ -87,10 +95,10 @@ class EmitterTest extends (ParserBaseTest) {
 		}
 	}
 	test_int_setter() {
-		if (context.use_tree == false) {
+		if (context.use_tree == false)
 			skip();
-			assert_emit('x=5;puts x', 5);
-		}
+		assert_emit('x=5;puts x', 5);
+
 	}
 	test_type_cast23(){
 		assert_emit(`2.3 as int`, 2);
@@ -241,7 +249,9 @@ class EmitterTest extends (ParserBaseTest) {
 	}
 }
 
-current = new EmitterTest().test_math
+current = new EmitterTest().
+	test_int_setter
+	// test_math
 // test_float
 // test_primitives // ok
 // test_basic

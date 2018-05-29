@@ -303,7 +303,7 @@ function integer() {
 		current_value = parseInt(match[0])
 		next_token(false)
 		if (context.use_tree) {
-			return new kast.Num(current_value)
+			return new ast.Num(current_value)
 		}
 		if (current_value === 0) {
 			current_value = ZERO;
@@ -385,6 +385,7 @@ function typeNameMapped() {
 // obj.prototype doesnt
 function mapType(x0) {
 	if(the.classes[x0]) return the.classes[x0]
+	if(!is_string(x0)) return x0
 	let x = x0.lower()
 	if(the.classes[x0]) return the.classes[x0]
 	if (x === "str") return String

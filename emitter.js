@@ -100,13 +100,22 @@ function toS(buffer, size=-1, index=0) {
 }
 
 class Visitor{
+	constructor(){
+		this.data=""
+	}
 	visit_number(n){
 		if(isInt(n)) return int(n)
 		else return float(n)
 	}
 
 	visit_string(s){
-		todo('visit_string');
+		let current=this.data.length
+		this.data+=s
+		this.data+="\x00"
+		return wasm.getGlobal(current)
+
+		// wasm.setGlobal(s,s)
+		// todo('visit_string: '+s);
 	}
 
 
@@ -147,6 +156,13 @@ class Visitor{
 		return I32.or(this.visit(c.left), this.visit(c.right))
 	}
 
+	visit_Assign(c) {
+		// return I32.store16()
+		let name = c.name;
+		if(is_a(name,ast.Name))name=name.name
+		return  wasm.setLocal(name,this.visit(c.value))
+	}
+
 	visit_Ge(c) {
 		return I32.ge_s(this.visit(c.left), this.visit(c.right))
 	}// ...
@@ -165,6 +181,8 @@ class Visitor{
 
 	visit(code){
 		// that=this
+		if(!code)
+			return // how?
 		let kind=typeof code
 		if (kind == "object") kind = code.constructor.name
 		let visitorMethod = this["visit_"+kind];
@@ -175,7 +193,14 @@ class Visitor{
 	}
 
 	visit_Interpretation(i){
-		return this.visit(i.result)
+		let code = i.result;
+		if(isArray(code)) {
+			let last
+			for (let c of code)
+				last = this.visit(c)
+			return last;
+		}
+		return this.visit(code)
 	}
 
 }
@@ -217,12 +242,14 @@ emit=function emit(code){
 		wasm.addFunctionImport("logi", "console", "logi", iV);
 		wasm.defaults=true
 	}
-	wasm.setMemory(1, 256, "mem", [{
-		offset: int(10),
-		data: str("hello, world")
-	}]);
 	visitor=new Visitor();
+	wasm.setMemory(1, visitor.data.length+16, "mem", [{
+		offset: int(10),
+		data: visitor.data
+	}]);
 	block=visitor.visit(code)
+	if(!block)throw new Error("No code block")
+	// if(!block)throw "No code block"
 	if(block.type!=int)
 		block=cast(block,int)
 	// main=wasm.addFunction("main", _void_, [],

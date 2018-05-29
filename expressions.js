@@ -269,12 +269,15 @@ function endNode() {
 	return x;
 }
 
-function is_a(x, type0) {
+is_a=function is_a(x, type0) {
 	let _type = mapType(type0)
+	if (_type == Number || _type == Float || _type == Real) return Number.isFinite(x)
+	if (_type == Integer) return Number.isInteger(x)
 	if (_type == String) return is_string(x)
+	if (_type == Array) return is_array(x)
+	if (_type == Boolean) return truthy(x)
 	if (_type == Map) return true // in Javascript all objects are hashes
 	if (_type == Object) return true // not by default!!
-	if (_type == Boolean) return truthy(x)
 	return typeof x == type0 || x instanceof _type
 }
 
@@ -814,7 +817,7 @@ function fileName() {
 	match = is_file(the.string, false)
 	if (match) {
 		path = match[0];
-		path = (stem.util.system.is_mac() ? path.gsub("^/home", "/Users") : path)
+		// path = (stem.util.system.is_mac() ? path.gsub("^/home", "/Users") : path)
 		path = new extensions.File(path)
 		next_token()
 		the.current_value = path;

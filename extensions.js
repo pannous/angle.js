@@ -127,7 +127,7 @@ hex = x => x>=0?x.toString(16):(0xFFFFFFFF+x+1).toString(16) // '0x' + not for x
 
 dir = function (x) {
 	if (!x) return []
-	if(is_string(x))return run('ls '+(x||'')) //ls(x)
+	// if(is_string(x))return run('ls '+(x||'')) //ls(x) WTF NO
 	return Object.getOwnPropertyNames(x)
 }
 // dir=xs=>{for(key in xs){if (!xs.hasOwnProperty(key))continue;console.log(key+":"+xs[key])}}
@@ -1090,6 +1090,8 @@ to_buffer = bytes => {
 is_string =  isString =(s) => s && s.constructor == String
 
 is_int = isInt = isInteger = Number.isInteger
+is_number = Number.isFinite
+is_float = Number.isFinite
 // is_int = parseInt
 
 globalize = clazz => {
@@ -1308,7 +1310,7 @@ function simulate_keypress(char, keyCode = 0, ctrl = 0, alt = 0, shift = 0, bubb
 	return document.dispatchEvent(keyboardEvent);
 }
 
-readCallerLine=function () {
+readCallerLine=function (skip=2) {
 	let err;
 	try {
 		throw Error('')
@@ -1316,10 +1318,10 @@ readCallerLine=function () {
 		err = err0
 	}
 	let caller_line
-	let stackElement = err.stack[3];
+	let stackElement = err.stack[skip];
 	if(!err.stack.split)
 		caller_line = stackElement.getFileName()+":"+stackElement.getLineNumber()+":";
-	else caller_line = err.stack.split("\n")[3];
+	else caller_line = err.stack.split("\n")[skip];
 	if (caller_line.match(/repl/)) return ""
 	const index = caller_line.indexOf("(") || caller_line.indexOf("at ")
 	const to = caller_line.indexOf(")") || caller_line.length;
@@ -1534,9 +1536,11 @@ keys = Object.keys
 
 
 
-trimStackHarder=function (stack,caller) {
+trimStackHarder=function trimStackHarder(ex,caller) {
 	// var callsite = require('callsite');
-	let neu = ex.message+"\n   at "+stack.filter(site => {
+	let keep=1
+	let stack=ex.stack
+	let neu = "\n   at "+stack.filter(site => {
 		x=site.getFunctionName() || 'anonymous'
 		if(caller&&x.match(caller))return false
 		if (x.match("backtrace")) return false
@@ -1544,10 +1548,11 @@ trimStackHarder=function (stack,caller) {
 		if (x.match("anonymous")) keep = false
 		if (x.match("Module._compile")) keep = false
 		if (x.match("nodeunit")) keep = false
-		if (x.match("modulus.exports")) keep = false// todo
-		if(!keep && x.match("at "))more--
-		return keep||more>0
-	}).join("\n   at ")
+		if (x.match("modulus.exports")) keep = false// todo\
+		if(keep)
+		console.log(`    at ${x} (${site.getFileName()}:${site.getLineNumber()})`)
+		return keep
+	}).join("\n   at ") // really : array to string??
 	ex.stack = neu
 	return ex
 
@@ -1555,7 +1560,7 @@ trimStackHarder=function (stack,caller) {
 
 trimStack=function (ex,more=0) {
 	let caller = trimStack.caller.name;
-	if(ex.stack && ! ex.stack.split)return trimStackHarder(ex.stack,caller) // already array why?
+	if(ex.stack && ! ex.stack.split)return trimStackHarder(ex,caller) // already array why?
 	let keep = true
 	let stack = ex.stack?(ex.stack.split?ex.stack.split("\n"):ex.stack):(ex.message||ex).split("\n")
 	let neu = stack.filter(x => {
@@ -1619,3 +1624,12 @@ function switch_keys_and_values(map) {
   return res;
 }
 flip=invert=switch_keys_and_values
+
+searchModule=function searchModule(modul,symbol) {
+	for(let s of dir(modul)){
+		if(s==symbol) return s;
+	}
+	for(let s of dir(modul)){
+		searchModule(modul[symbol],modul)
+	}
+}

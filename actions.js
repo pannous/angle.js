@@ -173,8 +173,9 @@ function method_call(obj = null) {
 	maybe_token(".") // todo
 	// method_name = true_method(obj);
 	let ok=true_method(obj);
-	if(!ok)raise_not_matching()
-	[modul, _ , method_name] = ok
+	// if(!ok) //!modul && !method_name)
+	// 	raise_not_matching()
+	[modul, obj , method_name]=ok
 	if (!method_name || method_name == FALSE || method_name == TRUE)
 		raise_not_matching("no method_call")
 	context.in_algebra = false;

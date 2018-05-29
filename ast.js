@@ -99,9 +99,17 @@ class FunctionDef extends AST {
 }
 
 class Assign extends AST {
+	constructor(name,value){
+		super();
+		[this.name,this.value]=[name,value]
+	}
 }
 
 class Name extends AST {
+	constructor(name) {
+		super();
+		this.name=name
+	}
 }
 
 class Load extends AST {
