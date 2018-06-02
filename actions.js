@@ -238,11 +238,7 @@ function method_call(obj = null) {
 	if (start_brace === "{") _("}");
 	if (!interpreting()) {
 		if (method_name === "puts" || method_name === "print" || method_name === "printf" || method_name === "log" && modul == "console") {
-			return new ast.Print({
-				dest: null,
-				values: args,
-				nl: true
-			});
+			return new ast.Print(args.length == 1 ? args[0] : args)
 		}
 		return new nodes.FunctionCall({
 			func: method,

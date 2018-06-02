@@ -21,15 +21,19 @@
   "dependencies": {
     "binaryen": "^39.0.0",
     "fs-readfile-promise": "",
+    "invariant": "^2.2.4",
     "json5": "",
     "node-fetch": "",
     "request": "",
     "string-tokenizer": "",
     "sync-request": "",
+    "wasm-types": "^1.0.3",
     "websocket": ""
   },
   "scripts": {
     "bash": "cp node_modules/* /usr/lib/node_modules/"
+  },
+  "devDependencies": {
+    "flow-bin": "^0.73.0"
   }
-
 }

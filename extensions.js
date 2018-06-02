@@ -511,11 +511,20 @@ Array_Extensions = {
 Buffer_Extensions = {
 	toHex() {
 		return bytesToHex(this);
+	},
+	join(b) {
+		return Buffer.concat([this, b])
+	},
+	append(b) {
+		return Buffer.concat([this, b])
 	}
 }
 String_Extensions = { // StringExtensions
 	at(i) {
 		return unicode(this.codePointAt(i))
+	},
+	to_buffer() {
+		return new Buffer(this)
 	},
 	join(xs) {// python style
 		if (is_string(xs)) return this + xs
@@ -1059,7 +1068,8 @@ mail_me = (subject, txt) => run(`echo "${txt}" | mail -s '${subject}' info@panno
 
 // Convert a hex string to a byte array
 hexToBytes = (hex) => {
-	for (let bytes = [], c = 0; c < hex.length; c += 2) {
+	let bytes = []
+	for (c = 0; c < hex.length; c += 2) {
 		if (c == 0 && hex[1] == 'x') continue
 		bytes.push(parseInt(hex.substr(c, 2), 16));
 	}
@@ -1076,7 +1086,7 @@ bytesToHex = (bytes) => {
 }
 
 to_buffer = bytes => {
-	if (is_string(bytes)) bytes = hexToBytes(bytes)
+	// if (is_string(bytes)) bytes = hexToBytes(bytes) ??
 	return new Buffer(bytes)
 	// return new Uint8Array(bytes)
 	// slow/egal
@@ -1633,3 +1643,6 @@ searchModule=function searchModule(modul,symbol) {
 		searchModule(modul[symbol],modul)
 	}
 }
+
+// TypeScript 2.0 supports a new way to install typings with npm.
+// npm install -S @types/lodash

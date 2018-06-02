@@ -611,7 +611,8 @@ function ranger(a = null) {
 	_("to")
 	b = number()
 	if (context.use_tree) {
-		return ast.call("range", [a, new ast.Num(b + 1)])
+		return ast.call("range", [a, b + 1])
+		// return ast.call("range", [a, new ast.Num(b + 1)])
 	}
 	return list(range(a, (b + 1)))
 }

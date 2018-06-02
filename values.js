@@ -34,6 +34,9 @@ let {
 	wordnet_is_adverb,
 } = require('./english_parser')
 
+function name(s) {
+	return {name: s}
+}
 function value() {
 	let current_value, typ;
 	if (the.current_type === _token.STRING) {
@@ -302,9 +305,10 @@ function integer() {
 	if (match) {
 		current_value = parseInt(match[0])
 		next_token(false)
-		if (context.use_tree) {
-			return new ast.Num(current_value)
-		}
+		// if (context.use_tree) {
+		// 	return current_value
+		// 	// return new ast.Num(current_value)// what for?
+		// }
 		if (current_value === 0) {
 			current_value = ZERO;
 		}

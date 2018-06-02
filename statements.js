@@ -257,7 +257,8 @@ setter =
 			}
 		}
 		if (!interpreting()) {
-			return new ast.Assign([new ast.Name(var_.name, new ast.Store())], val);
+			return new ast.Assign(var_.name, val);
+			// return new ast.Assign([new ast.Name(var_.name, new ast.Store())], val);
 		}
 		if (interpreting() && (val !== 0)) {
 			return val;

@@ -86,7 +86,11 @@ class NotEq extends AST {
 class In extends AST {
 }
 
-class Num extends AST {
+class Num extends AST { // what for?
+	constructor(value) {
+		super();
+		this.value = value
+	}
 }
 
 class Str extends AST {
@@ -117,8 +121,12 @@ class Load extends AST {
 
 class Store extends AST {
 }
-class Print{
 
+class Print extends AST {
+	constructor(expression) {
+		super();
+		this.expression = expression
+	}
 }
 // module.exports = [Add]
 module.exports = {
