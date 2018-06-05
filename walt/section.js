@@ -263,6 +263,10 @@ const emitFunctions = (functions/*: any[]*/) => {
 // import opcode from "../opcode";
 // import OutputStream from "../../utils/output-stream";
 
+function getTypeString(type) {
+	return "" + type;
+}
+
 const encode = (payload, {type, init, mutable}) => {
 	payload.push(u8, type, getTypeString(type));
 	payload.push(u8, mutable, "mutable");
@@ -554,7 +558,7 @@ function emitTables(tables/*: TableEntryType[]*/) {
 // import OutputStream from "../../utils/output-stream";
 
 
-const emitType = (stream, {params/*: any[]*/, result}, index) => {
+const emitType = (stream, {params/*?: any*/, result}, index) => {
 	// as of wasm 1.0 spec types are only of from === func
 	if (!params) return // todo
 	stream.push(varint7, FUNC, `func type (${index})`);

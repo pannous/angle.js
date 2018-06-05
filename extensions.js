@@ -34,7 +34,10 @@ falsey = x => !x || !Object.keys(x).length
 truthy = x => !(!x || typeof x == 'object' && !Object.keys(x).length)
 empty = falsy = falsey
 not_empty = truthy
-Int = Integer = Float = Real = Number
+Integer = class Integer extends Number {
+}
+Float = Real = Number
+// Int = Integer = Float = Real = Number
 Regex = Regexp = RegEx = RegExp
 
 // If we wrap our code, we can use await expressions anywhere in our codebase.
@@ -122,7 +125,7 @@ ignore = nop = pass = () => {
 }
 p = puts = log = echo = console.log
 home= path=>path.replace("~",process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'])//os.homedir())
-hex = x => x>=0?x.toString(16):(0xFFFFFFFF+x+1).toString(16) // '0x' + not for xdotool
+let hex = x => x >= 0 ? x.toString(16) : (0xFFFFFFFF + x + 1).toString(16) // '0x' + not for xdotool
 // hex = x => x.toString(16) // '0x' + not for xdotool
 
 dir = function (x) {
@@ -651,7 +654,20 @@ String_Extensions = { // StringExtensions
 	},
 	invert() {
 		return Array.from(this.normalize()).reverse().join("")
+	},
+	tabs(num) {
+		return new Array(num + 1).join('\t');
+	},
+	indent(num) {
+		return new Array(num + 1).join('\t') + this;
+	},
+	repeat(times = 2) {
+		return new Array(times + 1).join(this);
+	},
+	times(num) {
+		return new Array(num + 1).join(this);
 	}
+
 }
 HTMLCollection_Extensions = {
 	filter(l) {

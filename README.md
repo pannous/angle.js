@@ -4,7 +4,8 @@ Angle is **optionally speakable**:
 `assert two minus 1½ equals 0.5`
 
 Angle is **optionally typed**:  
-  `x=1;int y=2;number z=π²; assert x,y,z are numbers`
+  `x=1;number y=π²;int y=2; assert x,y,z are numbers`
+  `string s;s=3;s=="3"` save, because int x=cast "3" or throw
 
 Angle has **semantic indexing**:  
 `assert 3rd word in 'hi my friend' is 'friend'`
@@ -29,7 +30,7 @@ the last example translates to ruby:
 `mails(by: Peter).each{|it| it.mark(:read) if it.subject.match('SPAM')}`
 
 
-Angle uses **mark** as data and code format:
+Angle uses **[mark](https://github.com/henry-luo/mark)** as data and code format:
 ```
 cat{
     size:3
@@ -37,10 +38,58 @@ cat{
     form{
         dimensions = (3,size*2)
     }
+    eat(){
+      size++
+    }
+    hunger{
+      strike=true #local variable is basically key:value pair
+      if(strike)
+        size--
+    }
 }
 ```
 All code is data and all data can be 'executed':
-`cat.size=4; cat().dimensions is (3,8)`
+`cat.eat().dimensions is (3,8)` normal
+`cat.size=5; cat.dimensions=(3,size*2)` bound but not yet evaluated
+`cat().dimensions == cat.dimensions() is (3,10)` innovation
+
+
+
+classes are maps of keys/names to properties/fields/functions/variable-references!
+symbols are names to references
+maps are lists of pairs (duples), implicit triples: (index,name?,value?)
+lists are maps of index to value
+g = “I'm a global”
+hash={
+  1 to 'a'
+  2 : 'b' # careful with ints as keys!
+  var c = '3' 
+  d = '4' # no need for 'var': keys are local variables by default
+  global e = 5 # relatively ugly by design
+  set f = 6
+  g = 7 # hmmm ...
+  if(g>6)
+    kill! #only invoked when hash! is invoked
+  8:return 'blocks are just maps of (hidden) line-numbers to statements
+  goto 2 # oh yes;)
+
+}
+hash()
+e == 5
+f   // error, not predefined
+g == 7  // now ok, but before??
+
+internal block representation of hash == [
+(0,1,'a')
+(1,2,'b')
+(2,c,'3')
+(3,d,'4')
+(4,e,5) # where are modifiers? global(e) wrapper?
+(5,ø,set(f,6))
+(6,ø,if(g>6,kill!))
+(7,8,return)
+]
+hash[2]==hash.c=='3'
 
 *constant* data is evaluated ('reduced') immediately.
 

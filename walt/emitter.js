@@ -1,4 +1,5 @@
 // @flow
+require('/me/dev/js/extensions.js')()
 let section = require("./section.js")
 const invariant = require("invariant");
 require("wasm-types")
@@ -138,31 +139,15 @@ const EXTERN_TABLE = 1;
 const EXTERN_MEMORY = 2;
 const EXTERN_GLOBAL = 3;
 
-
-function emit(program/*:ProgramType*/, config/*:ConfigType*/) {
-	const stream = new OutputStream();
-
-	// Write MAGIC and VERSION. This is now a valid WASM Module
-	const result = stream
-		.write(preamble(program.Version))
-		.write(section.type(program))
-		.write(section.imports(program))
-		.write(section.function(program))
-		.write(section.table(program))
-		.write(section.memory(program))
-		.write(section.globals(program))
-		.write(section.exports(program))
-		.write(section.start(program))
-		.write(section.element(program))
-		.write(section.code(program))
-		.write(section.data(program));
-
-	if (config && config.encodeNames) {
-		return result.write(section.name(program));
-	}
-
-	return result;
+let map = (xs, f) => {
+	if (xs instanceof Array) return xs.map(f)
+	if (xs instanceof Function) return map(f, xs)
+	ys = []
+	for (let key in xs) if (xs.hasOwnProperty(key)) ys[key] = f(xs[key])
+	return ys
 }
+let hex = x => x >= 0 ? x.toString(16) : (0xFFFFFFFF + x + 1).toString(16) // '0x' + not for xdotool
+
 
 // const u32 = "u32";
 const varuint7 = "varuint7";
@@ -1361,4 +1346,32 @@ function walker(visitor/*:VisitorType*/)/*:(node: NodeType) => NodeType*/ {
 	return walkNode;
 }
 
+
+function emit(program/*:ProgramType*/, config/*:ConfigType*/) {
+	const stream = new OutputStream();
+
+	// Write MAGIC and VERSION. This is now a valid WASM Module
+	const result = stream
+		.write(preamble(program.Version || 1.0))
+		.write(section.type(program))
+		.write(section.imports(program))
+		.write(section.function(program))
+		.write(section.table(program))
+		.write(section.memory(program))
+		.write(section.globals(program))
+		.write(section.exports(program))
+		.write(section.start(program))
+		.write(section.element(program))
+		.write(section.code(program))
+		.write(section.data(program));
+
+	if (config && config.encodeNames) {
+		return result.write(section.name(program));
+	}
+	console.log(result)
+	console.log(result.buffer())
+	let data = new Uint8Array(result.buffer());
+	console.log(map(data, x => hex(x)));
+	return result;
+}
 module.exports = {emit}

@@ -12,7 +12,12 @@ ParserBaseTest = class ParserBaseTest {
 		// console.log("this.result_be OK")
 	}
 
-	// skip(){}
+	skip(msg) {
+		msg = msg || "SKIPPING " + (skip.callee || '')
+		throw new SkipException(msg);
+		// throw msg// new SkipException(msg);
+	}
+
 	setUp() {
 		context.testing = true;
 		// 	context.use_tree=False
@@ -120,23 +125,22 @@ registerTest = function (instance,test, modulus) {
 			ok.done()
 			console.log("OK")
 		} catch (exc) {
-			// callsite().forEach(function(site){
+
+			if (exc instanceof SkipException)
+				return console.log(exc.message + " " + test) || ok.done(exc)
+
 			console.error(exc.message)
 			let keep=1
 			exc.stack.forEach(function(site){
-				// console.log('   at %s\033[9 %s:%d\033[0m'
 				// if (site.match("anonymous")) keep = false
 					let functionName = site.getFunctionName();
 				if(!functionName) keep=false;
 				if(keep) console.error('  at \033[36m%s\033[90m (%s:%d)\033[0m', functionName, site.getFileName(), site.getLineNumber());
 			});
 			console.error(trimStack(exc))
-				if (exc instanceof SkipException)
-					console.log("SKIPPING:") && console.log(clazz) && ok.done()
-				else
-					ok.done(exc)
+			// exc= trimStack(exc)
+			ok.done(exc)
 			// 	// console.log(trimStack(ex));
-			// 	// ex= trimStack(ex)
 			// 		throw exc
 		}
 	}

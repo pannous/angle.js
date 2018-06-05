@@ -976,6 +976,16 @@ function otherwise() {
 	return e;
 }
 
+function _constructor() {
+	// return method_call() no 'true_method'
+	let typ = typeName()
+	_('(')
+	let val = expression()
+	_(')')
+	let {do_cast} = require('./angle_parser')
+	return do_cast(val, typ)
+}
+
 
 quick_expression = function quick_expression() {
 	let fun, result, z;
@@ -1034,12 +1044,17 @@ quick_expression = function quick_expression() {
 		if (method_allowed(word)) {
 			result = method_call();
 		}
+		else if (word.in(type_names)) {
+			result = _constructor();
+		}
 	} else if (word.in(the.params)) {
 		result = true_param();
 	} else if (word.in(the.variables)) {
 		result = known_variable();
-	} else if (word.in(type_names)) {
-		return (maybe(setter) || method_definition());
+	}
+	else if (word.in(type_names)) {
+		result = maybe(setter) || method_definition();
+		return result; // no post_operation
 	}
 	if (look_1_ahead("of")) result = evaluate_property(result);
 	if (!result) return false;

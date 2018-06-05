@@ -374,8 +374,7 @@ function classConstDefined() {
 	return c;
 }
 
-
-function typeName() {
+function typeName(typ) {
 	return maybe_tokens(type_names) || classConstDefined()
 }
 
@@ -403,7 +402,7 @@ function mapType(x0) {
 	if (x === "label") return String
 	if (x === "lable") return String
 	if (x === "type") return Function // todo
-	if (x === "int") return Number;
+	if (x === "int") return Integer;
 	if (x === "integer") return Number;
 	if (x === "long") return Number;
 	if (x === "double") return Number;
