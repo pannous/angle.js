@@ -1336,7 +1336,7 @@ function simulate_keypress(char, keyCode = 0, ctrl = 0, alt = 0, shift = 0, bubb
 	return document.dispatchEvent(keyboardEvent);
 }
 
-readCallerLine=function (skip=2) {
+readCallerLine=function (skip=3) {
 	let err;
 	try {
 		throw Error('')

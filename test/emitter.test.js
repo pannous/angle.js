@@ -1,5 +1,6 @@
 let {parser,assert_result_is}=require('./angle_base_test')
-let {emit}=require('../emitter')
+let {emit}=require('../walt/emitter')
+// let {emit}=require('../emitter')
 let ast = require('../ast')
 
 
