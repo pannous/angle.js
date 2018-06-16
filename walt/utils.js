@@ -182,6 +182,7 @@ module.exports.OutputStream =
 				case "varuint7":
 				case "varuint32":
 				case "varint7":
+				case "u8":
 				case "varint1": {
 					// Encode all of the LEB128 aka 'var*' types
 					value = encodeUnsigned(value);
@@ -202,7 +203,7 @@ module.exports.OutputStream =
 					break;
 				}
 				default: {
-					size = sizeof[type];
+					size = this.sizeof[type];
 					invariant(size, `Cannot write a value of size ${size}, type ${type}`);
 				}
 			}

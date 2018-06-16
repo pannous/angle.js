@@ -14,6 +14,26 @@ const SECTION_DATA = 11;
 // Custom sections
 const SECTION_NAME = 0;
 
+
+let {
+	i32,
+	i64,
+	f32,
+	f64,
+	anyfunc,
+	func,
+	block_type,
+	i8,
+	u8,
+	i16,
+	u16,
+	u32,
+	u64,
+	set,
+	get,
+	sizeof,
+}=require("wasm-types")
+
 // import { u8, i32, f32, f64, i64 } from "wasm-types";
 // import { varint32, varuint32, varint7, varint64 } from "../numbers";
 // import { getTypeString } from "../value_type";
@@ -70,7 +90,7 @@ const writer = ({
 		return null;
 	}
 
-	const stream = new OutputStream().push(u8, type, label + " section");
+	const stream = new OutputStream().push("u8", type, label + " section");
 	const entries = emitter(field);
 
 	stream.push(varuint32, entries.size, "size");
@@ -93,11 +113,11 @@ const emitFunctionBody = (stream, {locals, code, debug: functionName}) => {
 
 	code.forEach(({kind, params, valueType, debug}) => {
 		// There is a much nicer way of doing this
-		body.push(u8, kind.code, `${kind.text}  ${debug ? debug : ""}`);
+		body.push("u8", kind.code, `${kind.text}  ${debug ? debug : ""}`);
 
 		if (valueType) {
-			body.push(u8, valueType.type, "result type");
-			body.push(u8, valueType.mutable, "mutable");
+			body.push("u8", valueType.type, "result type");
+			body.push("u8", valueType.mutable, "mutable");
 		}
 
 		// map over all params, if any and encode each on
@@ -146,7 +166,7 @@ const emitFunctionBody = (stream, {locals, code, debug: functionName}) => {
 
 	stream.write(localsStream);
 	stream.write(body);
-	stream.push(u8, opcode.End.code, "end");
+	stream.push("u8", opcode.End.code, "end");
 };
 
 const emitCode = (functions/*: any[]*/) => {
@@ -170,9 +190,9 @@ const emitDataSegment = (stream, segment) => {
 
 	const {offset, data} = segment;
 
-	stream.push(u8, opcode.i32Const.code, opcode.i32Const.text);
+	stream.push("u8", opcode.i32Const.code, opcode.i32Const.text);
 	stream.push(varint32, offset, `segment offset (${offset})`);
-	stream.push(u8, opcode.End.code, "end");
+	stream.push("u8", opcode.End.code, "end");
 
 	stream.push(varuint32, data.size, "segment size");
 	// We invert the control here a bit so that any sort of data could be written
@@ -208,9 +228,9 @@ let emitElement = (stream/*: OutputStream*/) => (
 	index/*: number*/
 ) => {
 	stream.push(varuint32, 0, "table index");
-	stream.push(u8, opcode.i32Const.code, "offset");
+	stream.push("u8", opcode.i32Const.code, "offset");
 	stream.push(varuint32, index, index.toString());
-	stream.push(u8, opcode.End.code, "end");
+	stream.push("u8", opcode.End.code, "end");
 	stream.push(varuint32, 1, "number of elements");
 	stream.push(varuint32, functionIndex, "function index");
 };
@@ -236,7 +256,7 @@ const emitExports = (exports/*: any[]*/) => {
 	exports.forEach(({field, kind, index}) => {
 		emitString(payload, field, "field");
 
-		payload.push(u8, kind, "Global");
+		payload.push("u8", kind, "Global");
 		payload.push(varuint32, index, "index");
 	});
 
@@ -268,25 +288,25 @@ function getTypeString(type) {
 }
 
 const encode = (payload, {type, init, mutable}) => {
-	payload.push(u8, type, getTypeString(type));
-	payload.push(u8, mutable, "mutable");
+	payload.push("u8", type, getTypeString(type));
+	payload.push("u8", mutable, "mutable");
 	// Encode the constant
 	switch (type) {
 		case I32:
-			payload.push(u8, opcode.i32Const.code, opcode.i32Const.text);
+			payload.push("u8", opcode.i32Const.code, opcode.i32Const.text);
 			payload.push(varint32, init, `value (${init})`);
 			break;
 		case F32:
-			payload.push(u8, opcode.f32Const.code, opcode.f32Const.text);
+			payload.push("u8", opcode.f32Const.code, opcode.f32Const.text);
 			payload.push(f32, init, `value (${init})`);
 			break;
 		case F64:
-			payload.push(u8, opcode.f64Const.code, opcode.f64Const.text);
+			payload.push("u8", opcode.f64Const.code, opcode.f64Const.text);
 			payload.push(f64, init, `value (${init})`);
 			break;
 	}
 
-	payload.push(u8, opcode.End.code, "end");
+	payload.push("u8", opcode.End.code, "end");
 };
 
 const emitGlobals = (globals/*: any[]*/) => {
@@ -325,25 +345,25 @@ const emitEntries = (entries/*: any[]*/) => {
 
 		switch (entry.kind) {
 			case EXTERN_GLOBAL: {
-				payload.push(u8, EXTERN_GLOBAL, "Global");
-				payload.push(u8, entry.type, getTypeString(entry.type));
-				payload.push(u8, 0, "immutable");
+				payload.push("u8", EXTERN_GLOBAL, "Global");
+				payload.push("u8", entry.type, getTypeString(entry.type));
+				payload.push("u8", 0, "immutable");
 				break;
 			}
 			case EXTERN_FUNCTION: {
-				payload.push(u8, entry.kind, "Function");
+				payload.push("u8", entry.kind, "Function");
 				payload.push(varuint32, entry.typeIndex, "type index");
 				break;
 			}
 			case EXTERN_TABLE: {
-				payload.push(u8, entry.kind, "Table");
-				payload.push(u8, ANYFUNC, "function table types");
+				payload.push("u8", entry.kind, "Table");
+				payload.push("u8", ANYFUNC, "function table types");
 				payload.push(varint1, 0, "has max value");
 				payload.push(varuint32, 0, "iniital table size");
 				break;
 			}
 			case EXTERN_MEMORY: {
-				payload.push(u8, entry.kind, "Memory");
+				payload.push("u8", entry.kind, "Memory");
 				payload.push(varint1, !!entry.max, "has no max");
 				payload.push(varuint32, entry.initial, "initial memory size(PAGES)");
 				if (entry.max) {

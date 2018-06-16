@@ -1,163 +1,29 @@
 // @flow
+/* eslint-env es6 */
+
 require('../extensions.js')()
 let section = require("./section.js")
 const invariant = require("invariant");
-require("wasm-types")
-/* eslint-env es6 */
-/**
- * WASM types
- *
- * https://github.com/WebAssembly/spec/tree/master/interpreter#s-expression-syntax
- *
- * Plus some extra C type mappings
- *
- * @author arthrubuldauskas@gmail.com
- * @license MIT
- */
+let {
+	i32,
+	i64,
+	f32,
+	f64,
+	anyfunc,
+	func,
+	block_type,
+	i8,
+	u8,
+	i16,
+	u16,
+	u32,
+	u64,
+	set,
+	get,
+	sizeof,
+}=require("wasm-types")
 
-
-/* global $Exact */
-/*::
-export type Marker = {
-	sourceLine: string,
-	line: number,
-	col: number,
-};
-
-export type TokenType = {
-	start: Marker,
-	end: Marker,
-	type: string,
-	value: string,
-};
-
-export type MetadataType = { [string]: any };
-
-export type NodeType = {
-	range: Marker[],
-	Type: string,
-	type: string | null,
-	value: string,
-	meta: MetadataType,
-	params: NodeType[],
-};
-
-export type WebAssemblyModuleType = {
-	instance: {
-		exports: {
-			[string]: any,
-		},
-	},
-};
-
-export type ConfigType = {
-	version: number,
-	encodeNames: boolean,
-	lines: string[],
-	filename: string,
-	linker?: {
-		statics: { [string]: number },
-	},
-};
-
-export type TypeCastType = {
-	...$Exact<NodeType>,
-	type: string,
-	params: [{ ...NodeType, type: string }],
-};
-
-
-export type RawOpcodeType = {
-	result: ?number,
-	first: ?number,
-	second: ?number,
-	size: number,
-	code: number,
-	name: string,
-	text: string,
-};
-export type IntermediateVariableType = {
-	mutable: 0 | 1,
-	type: number,
-	init?: number,
-};
-export type IntermediateOpcodeType = {
-	kind: RawOpcodeType,
-	params: number[],
-	valueType?: IntermediateVariableType,
-};
-export type IntermediateFunctionType = {
-	code: IntermediateOpcodeType[],
-	locals: IntermediateVariableType[],
-};
-export type MapSyntaxType = (
-	?IntermediateFunctionType
-) => NodeType => IntermediateOpcodeType[];
-
-export type IntermediateTypeDefinitionType = {
-	id: string,
-	params: number[],
-	result: number | null,
-};
-
-export type GeneratorType = (
-	NodeType,
-	IntermediateFunctionType
-) => IntermediateOpcodeType[];
-
-export type IntermediateImportType = {
-	module: string,
-	field: string,
-	global: boolean,
-	kind: number,
-	typeIndex: number | null,
-};
-
-export type IntermediateExportType = {
-	index: number,
-	kind: number,
-	field: string,
-};
-
-export type IntermediateTableType = {
-	max: number,
-	initial: number,
-	type: string,
-};
-export type IntermediateMemoryType = { max: number, initial: number };
-
-export type FunctionNameType = { index: number, name: string };
-export type NameSectionType = {
-	module: string,
-	functions: FunctionNameType[],
-	locals: Array<{
-		index: number,
-		locals: Array<{ index: number, name: string }>,
-	}>,
-};
-export type DataSectionType = Array<{
-	offset: number,
-	data: OutputStream,
-}>;
-
-export type ProgramType = {
-	// Setup keys needed for the emitter
-	Version: number,
-	Types: IntermediateTypeDefinitionType[],
-	Code: IntermediateFunctionType[],
-	Exports: IntermediateExportType[],
-	Imports: IntermediateImportType[],
-	Globals: IntermediateVariableType[],
-	Element: Array<{ functionIndex: number }>,
-	Functions: number[],
-	Memory: IntermediateMemoryType[],
-	Table: IntermediateTableType[],
-	Artifacts: NodeType[],
-	Name: NameSectionType,
-	Data: DataSectionType,
-	Start: number[],
-};
-*/
+/*
 
 const i32 = 1;
 const i64 = 1 << 1;
@@ -193,89 +59,24 @@ const sizeof = {
 	[block_type]: word
 };
 
-// TODO: Make this configurable.
-const LITTLE_ENDIAN = true;
+*/
 
-const get = (type, index, dataView) => {
-	switch (type) {
-		case i32:
-			return dataView.getInt32(index, LITTLE_ENDIAN);
-		case i64:
-			return dataView.getInt64(index, LITTLE_ENDIAN);
-		case f32:
-			return dataView.getFloat32(index, LITTLE_ENDIAN);
-		case f64:
-			return dataView.getFloat64(index, LITTLE_ENDIAN);
-		case anyfunc:
-			return dataView.getUint32(index, LITTLE_ENDIAN);
-		case func:
-			return dataView.getUint32(index, LITTLE_ENDIAN);
-		case i8:
-			return dataView.getInt8(index, LITTLE_ENDIAN);
-		case u8:
-			return dataView.getUint8(index, LITTLE_ENDIAN);
-		case i16:
-			return dataView.getInt16(index, LITTLE_ENDIAN);
-		case u16:
-			return dataView.getUint16(index, LITTLE_ENDIAN);
-		case u32:
-			return dataView.getUint32(index, LITTLE_ENDIAN);
-		case u64:
-			return dataView.getUint64(index, LITTLE_ENDIAN);
-		default:
-			return dataView.getUint8(index, LITTLE_ENDIAN);
-	}
-};
 
-const set = (type, index, dataView, value) => {
-	switch (type) {
-		case i32:
-			return dataView.setInt32(index, value, LITTLE_ENDIAN);
-		case i64:
-			return dataView.setInt64(index, value, LITTLE_ENDIAN);
-		case f32:
-			return dataView.setFloat32(index, value, LITTLE_ENDIAN);
-		case f64:
-			return dataView.setFloat64(index, value, LITTLE_ENDIAN);
-		case anyfunc:
-			return dataView.setUint32(index, value, LITTLE_ENDIAN);
-		case func:
-			return dataView.setUint32(index, value, LITTLE_ENDIAN);
-		case i8:
-			return dataView.setInt8(index, value/*, LITTLE_ENDIAN*/);
-		case u8:
-			return dataView.setUint8(index, value/*, LITTLE_ENDIAN*/);
-		case i16:
-			return dataView.setInt16(index, value, LITTLE_ENDIAN);
-		case u16:
-			return dataView.setUint16(index, value, LITTLE_ENDIAN);
-		case u32:
-			return dataView.setUint32(index, value, LITTLE_ENDIAN);
-		case u64:
-			return dataView.setUint64(index, value, LITTLE_ENDIAN);
-		default:
-			return dataView.setUint8(index, value/*, LITTLE_ENDIAN*/);
-	}
-}
+/**
+ * WASM types
+ *
+ * https://github.com/WebAssembly/spec/tree/master/interpreter#s-expression-syntax
+ *
+ * Plus some extra C type mappings
+ *
+ * @author arthrubuldauskas@gmail.com
+ * @license MIT
+ */
 
-module.exports = {
-	i32,
-	i64,
-	f32,
-	f64,
-	anyfunc,
-	func,
-	block_type,
-	i8,
-	u8,
-	i16,
-	u16,
-	u32,
-	u64,
-	set,
-	get,
-	sizeof
-}
+
+/* global $Exact */
+
+
 
 
 const EXTERN_FUNCTION = 0;
@@ -283,6 +84,7 @@ const EXTERN_TABLE = 1;
 const EXTERN_MEMORY = 2;
 const EXTERN_GLOBAL = 3;
 
+//|Uint8Array
 let map = (xs/*:any[]*/, f/*:any*/) => {
 	if (xs instanceof Array) return xs.map(f)
 	if (xs instanceof Function) return map(f, xs)
@@ -637,7 +439,7 @@ const _debug = (stream/*:OutputStream*/, begin/*:number*/ = 0, end/*:?number*/) 
 	let pc = 0;
 	return (
 		stream.data
-			.slice(begin, end)
+			.slice(begin, end||0)
 			.map(({type, value, debug}) => {
 				const pcString = pc
 					.toString(16)
@@ -946,13 +748,14 @@ const typedefString = (node/*:NodeType*/)/*:string*/ => {
 		` (func${parseParams(paramsNode)}${parseResult(resultNode)}))`
 	);
 };
+/*
 
 const getPrinters = add => ({
 	[Syntax.Import]: (node, _print) => {
 		const [nodes, mod] = node.params;
 		walkNode({
 			[Syntax.Pair]: ({params}, _) => {
-				const {value/*: field*/} = params[0];
+				const {value/!*: field*!/} = params[0];
 				const type = params[1];
 
 				if (type.value === "Memory") {
@@ -989,13 +792,13 @@ const getPrinters = add => ({
 			add(`(call ${node.value})`);
 		}
 	},
-	[Syntax.BinaryExpression]: (node/*:NodeType*/, print) => {
+	[Syntax.BinaryExpression]: (node/!*:NodeType*!/, print) => {
 		const text = getText(node);
 		add("(" + text, 2);
 		node.params.forEach(print);
 		add(")", 0, -2);
 	},
-	[Syntax.ArraySubscript]: (node/*:NodeType*/, print) => {
+	[Syntax.ArraySubscript]: (node/!*:NodeType*!/, print) => {
 		add("(i32.add", 2);
 		node.params.forEach(print);
 		add(")", 0, -2);
@@ -1055,7 +858,7 @@ const getPrinters = add => ({
 	[Syntax.Type]: node => {
 		add(node.value);
 	},
-	[Syntax.TypeCast]: (node/*: TypeCastType*/, print) => {
+	[Syntax.TypeCast]: (node/!*: TypeCastType*!/, print) => {
 		const from = node.params[0];
 		const op = getTypecastOpcode(String(node.type), from.type);
 		add("(" + op.text, 2);
@@ -1103,6 +906,7 @@ const getPrinters = add => ({
 	[Syntax.ObjectLiteral]: (_, __) => {
 	},
 });
+*/
 
 const printNode = (node/*?: NodeType*/)/*:string*/ => {
 	if (node == null) {
@@ -1152,12 +956,13 @@ const parseBounds = node => {
 
 // Base Character stream class
 class Stream {
-	// input/*:string*/;
-	// pos/*:number*/;
-	// line/*:number*/;
-	// col/*:number*/;
-	// lines/*:string[]*/;
-
+	/*::
+	input:string;
+	pos:number;
+	line:number;
+	col:number;
+	lines:string[];
+*/
 	constructor(input/*:string*/) {
 		this.pos = this.line = this.col = 0;
 		this.input = input;
@@ -1270,7 +1075,7 @@ function stringEncoder(value) {
 };
 */
 let offset/*:i32*/ = 0;
-
+let __DATA_LENGTH__=1000;// todo!
 function malloc(size/*:i32*/) /*:i32*/ {
 	const pointer/*:i32*/ = __DATA_LENGTH__ + offset;
 	offset += size;
@@ -1296,7 +1101,7 @@ function getStringIterator(addr/*:i32*/) /*:StringIterator*/ {
 		shift += 7;
 	}
 
-	iterator = {done: false, length, index: 0, addr, start/*: addr*/};
+	iterator = {done: false, length, index: 0, addr, start/*: addr*/,value:0};
 
 	return iterator;
 }
@@ -1346,13 +1151,13 @@ function reset(iterator/*:StringIterator*/) {
 	};
 }
 
-const harness = filepath => t => {
-	const memory = new WebAssembly.Memory({initial/*: 1*/});
+/*const harness = filepath => t => {
+	const memory = new WebAssembly.Memory({initial/!*: 1*!/});
 	const view = new DataView(memory.buffer);
 
 	const build = link(
 		filepath,
-		{logger/*: console*/},
+		{logger/!*: console*!/},
 		{
 			mapNode,
 			walkNode,
@@ -1380,7 +1185,7 @@ const harness = filepath => t => {
 			},
 		},
 	}).then(module => module.instance.exports.run());
-};
+};*/
 
 
 /*:: type TokenStream = {
@@ -1503,8 +1308,154 @@ function walker(visitor/*:VisitorType*/)/*:(node: NodeType) => NodeType*/ {
 
 let {wasmx} = require('../wasmx.js')
 
-function emit(program/*:ProgramType*/, config/*:ConfigType*/) {
+/*::
+
+// export type i32=number
+export type Marker = {
+	sourceLine: string,
+	line: number,
+	col: number,
+};
+
+export type TokenType = {
+	start: Marker,
+	end: Marker,
+	type: string,
+	value: string,
+};
+
+export type MetadataType = { [string]: any };
+
+export type NodeType = {
+	range: Marker[],
+	Type: string,
+	type: string | null,
+	value: string,
+	meta: MetadataType,
+	params: NodeType[],
+};
+
+export type WebAssemblyModuleType = {
+	instance: {
+		exports: {
+			[string]: any,
+		},
+	},
+};
+
+export type ConfigType = {
+	version: number,
+	encodeNames: boolean,
+	lines: string[],
+	filename: string,
+	linker?: {
+		statics: { [string]: number },
+	},
+};
+
+export type TypeCastType = {
+	...$Exact<NodeType>,
+	type: string,
+	params: [{ ...NodeType, type: string }],
+};
+
+
+export type RawOpcodeType = {
+	result: ?number,
+	first: ?number,
+	second: ?number,
+	size: number,
+	code: number,
+	name: string,
+	text: string,
+};
+export type IntermediateVariableType = {
+	mutable: 0 | 1,
+	type: number,
+	init?: number,
+};
+export type IntermediateOpcodeType = {
+	kind: RawOpcodeType,
+	params: number[],
+	valueType?: IntermediateVariableType,
+};
+export type IntermediateFunctionType = {
+	code: IntermediateOpcodeType[],
+	locals: IntermediateVariableType[],
+};
+export type MapSyntaxType = (
+	?IntermediateFunctionType
+) => NodeType => IntermediateOpcodeType[];
+
+export type IntermediateTypeDefinitionType = {
+	id: string,
+	params: number[],
+	result: number | null,
+};
+
+export type GeneratorType = (
+	NodeType,
+	IntermediateFunctionType
+) => IntermediateOpcodeType[];
+
+export type IntermediateImportType = {
+	module: string,
+	field: string,
+	global: boolean,
+	kind: number,
+	typeIndex: number | null,
+};
+
+export type IntermediateExportType = {
+	index: number,
+	kind: number,
+	field: string,
+};
+
+export type IntermediateTableType = {
+	max: number,
+	initial: number,
+	type: string,
+};
+export type IntermediateMemoryType = { max: number, initial: number };
+
+export type FunctionNameType = { index: number, name: string };
+export type NameSectionType = {
+	module: string,
+	functions: FunctionNameType[],
+	locals: Array<{
+		index: number,
+		locals: Array<{ index: number, name: string }>,
+	}>,
+};
+export type DataSectionType = Array<{
+	offset: number,
+	data: OutputStream,
+}>;
+
+export type ProgramType = {
+	// Setup keys needed for the emitter
+	Version: number,
+	Types: IntermediateTypeDefinitionType[],
+	Code: IntermediateFunctionType[],
+	Exports: IntermediateExportType[],
+	Imports: IntermediateImportType[],
+	Globals: IntermediateVariableType[],
+	Element: Array<{ functionIndex: number }>,
+	Functions: number[],
+	Memory: IntermediateMemoryType[],
+	Table: IntermediateTableType[],
+	Artifacts: NodeType[],
+	Name: NameSectionType,
+	Data: DataSectionType,
+	Start: number[],
+};
+*/
+
+function emit(program0/*:ProgramType*/, config/*:ConfigType*/) {
 	const stream = new OutputStream();
+	let Types=[{id:"main",params:[0,1],result:0}]
+	let program={Version:1,Types}
 
 	const binary = stream
 		.write(preamble(program.Version || 1.0)) 	// Write MAGIC and VERSION. This is now a valid WASM Module
