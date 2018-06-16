@@ -1,0 +1,13 @@
+[ignore]
+
+[include]
+emitter/*
+test/flow.test.js
+
+[libs]
+
+[lints]
+
+[options]
+
+[strict]
