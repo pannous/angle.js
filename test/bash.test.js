@@ -1,4 +1,4 @@
-require('./angle_base_test');
+require('../angle_base_tester');
 
 class BashTest extends (ParserBaseTest) {
 
@@ -21,7 +21,8 @@ class BashTest extends (ParserBaseTest) {
 	// def test_pipe2(self):
 	//     parse("def column n:n;bash 'ls -al' | column 1| row 2")
 }
-// register(new BashTest(), module)
+
+register(new BashTest(), module)
 // module.exports.test_current=new BashTest().test_ls
-module.exports.test_current=new BashTest().test_ls_type
+// module.exports.test_current=new BashTest().test_ls_type
 // module.exports.test_current=new BashTest().test_pipe

@@ -4,16 +4,16 @@ let {setVerbose} = require("../angle_parser")
 let {gerund} = require("../angle_parser")
 let {evaluate_property} = require("../expressions")
 let {do_interpret, init} = require("../power_parser")
-let {register} = require("./angle_base_test")
+let {register} = require('../angle_base_tester')
 let {result, variableValues} = require("../context")
 let {postjective} = require("../english_parser")
 let the = require("../context")
 // let {setter} = require("../statements")
 let {algebra} = require("../expressions")
 let {expression} = require("../expressions")
-let {assert_result_is,assert_that,parser} = require("./angle_base_test")
+let {assert_result_is, assert_that, parser} = require('../angle_base_tester')
 // let parser = require("../angle_parser")
-// let {assert_that} = require('./angle_base_test');
+// let {assert_that} = require('../angle_base_tester');
 
 setVerbose(0)
 
@@ -182,15 +182,12 @@ class StringTest extends (ParserBaseTest) {
 		assert_that(`class of x is string`);
 	}
 
-	test_operations(){
-		assert_that(`reverse "ab" is "ba"`);
-		assert_that(`"ab" reversed is "ba"`);
-		assert_that(`trim " ab " is "ab"`);
-		assert_that(`" ab " trimmed is "ab"`);
-	}
 
-	test_type3() {
-		parse(`x be 'hello world';`);
+	test_type3(test) {
+		let x = parse(`x be 'hello world';`);
+		console.log(x)
+		assert_equals(x, 'hello world')
+		assert_equals(the.variables['x'].value, 'hello world');
 		assert_that(`x is a string`);
 		assert_that(`type of x is string`);
 		assert_that(`class of x is string`);
@@ -201,8 +198,15 @@ class StringTest extends (ParserBaseTest) {
 		assert_that(`yy is string`);
 		parse(`yy is type of x`);
 		assert_that(`yy is string`);
+		test.done()
 	}
 
+	test_operations() {
+		assert_that(`reverse "ab" is "ba"`);
+		assert_that(`"ab" reversed is "ba"`);
+		assert_that(`trim " ab " is "ab"`);
+		assert_that(`" ab " trimmed is "ab"`);
+	}
 	test_type1() {
 		init('class of "hi"');
 		let result = evaluate_property();
@@ -235,7 +239,6 @@ class StringTest extends (ParserBaseTest) {
 }
 
 setVerbose()
-register(StringTest, module)
-module.exports.test_current = new StringTest().
-	test_class
-	// test_type
+// register(StringTest, module)
+module.exports.test_current = new StringTest().// test_class
+	test_type3

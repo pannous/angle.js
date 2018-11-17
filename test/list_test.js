@@ -1,7 +1,7 @@
 let context = require("../context")
 context.use_tree = false;
 require("../statements")
-let {assert_result_is, assert_has_error, assert_that, parser, init, clear} = require("./angle_base_test")
+let {assert_result_is, assert_has_error, assert_that, parser, init, clear} = require('../angle_base_tester')
 
 class ListTest extends (ParserBaseTest) {
 	setUp() {

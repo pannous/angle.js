@@ -17,7 +17,7 @@ class Compare extends ast.Compare {
         this.comparators = [this.right];
     }
     toString() {
-        return ("%s %s %s" % [this.left, this.comp, this.right]);
+	    return ("%s %s %s".format([this.left, this.comp, this.right]));
     }
 }
 class Quote extends ast.Str {
@@ -81,13 +81,18 @@ class FunctionDef extends ast.FunctionDef {
         if ((! this.arguments)) {
             this.arguments = [];
         }
-        this.args = ast.arguments({args: pyc_emitter.map_values(this.arguments), vararg: null, kwarg: null, defaults: []});
+	    this.args = ast.arguments({
+		    args: pyc_emitter.map_values(this.arguments),
+		    vararg: null,
+		    kwarg: null,
+		    defaults: []
+	    });
     }
     toString() {
         if (this.clazz) {
-            return ("<Function %s %s>" % [this.clazz, this.name]);
+	        return ("<Function %s %s>".format([this.clazz, this.name]));
         }
-        return ("<Function %s>" % this.name);
+	    return ("<Function %s>".format(this.name));
     }
     is_classmethod() {
         return ((this.clazz !== null) || (this.modifier === "classmethod"));
@@ -100,9 +105,9 @@ class FunctionDef extends ast.FunctionDef {
     }
     toString() {
         if (this.clazz) {
-            return ("<Function %s %s>" % [this.clazz, this.name]);
+	        return ("<Function %s %s>".format([this.clazz, this.name]));
         }
-        return ("<Function %s>" % this.name);
+	    return ("<Function %s>".format(this.name));
     }
     equals(other) {
         var body_ok, ok;
@@ -160,7 +165,7 @@ class FunctionCall extends ast.Assign {
             func = ast.name(func);
         }
         if ((! (func instanceof ast.Name))) {
-            throw new Error(("NOT A NAME %s" % func));
+	        throw new Error("NOT A NAME %s".format(func));
         }
         this.targets = [new kast.Name({id: "it", ctx: new ast.Store()})];
         if ((this.arguments === null)) {
@@ -245,7 +250,7 @@ class Variable extends ast.Name {
 	    // this.value = args["value"] || null;
 	    // this.type = args["type"] || args["typed"]
 	    this.type = this.type || this.typed
-	    this.type = this.type || this.value &&Object.getPrototypeOf(this.value)
+	    this.type = this.type || this.value && get_type(this.value) //|| Object.getPrototypeOf(this.value)
 	    this.type = this.type || this.value && typeof this.value || null
 	    // this.scope = args["scope"] || null;
 	    // this.owner = args["owner"] || null;
@@ -256,16 +261,16 @@ class Variable extends ast.Name {
     }
 
 	// toString() {
-     //    return ("xzcv %s" % this.name).toString();
+	//    return ("xzcv %s".format( this.name).toString();
 	// }
 	// toString() {
-	// 	return ("xzcv %s" % this.name).toString();
+	// 	return ("xzcv %s".format( this.name).toString();
 	// }
-	toString() {
-		return ("<Variable %s %s=%s>" % [(this.type || ""), this.name, this.value]);
+	to_s() {
+		return "<Variable %s %s=%s>".format((this.type.name || ""), this.name, this.value);
 	}
 	toString() {
-		return ("<Variable %s %s=%s>" % [(this.type || ""), this.name, this.value]);
+		return "<Variable %s %s=%s>".format([(this.type ? this.type.name : ""), this.name, this.value]);
 	}
 	__getitem__(item) {
         return this.value[item];

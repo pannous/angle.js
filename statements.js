@@ -1,4 +1,5 @@
 // "use strict"
+const mapType = require("./values").mapType;
 const word = require("./values").word;
 let {nth_item} = require("./expressions")
 
@@ -186,35 +187,40 @@ function assure_same_type_overwrite(var_, val, auto_cast = false, oldType) {
 
 function get_type(val) {
 	if(!val) return null
-	return Object.getPrototypeOf(val)
+	if (is_string(val)) return String;
+	if (is_array(val)) return Array;
+	if (is_number(val)) return Number;
+	// return Object.getPrototypeOf(val)
 	// val.prototype
-	// return mapType(typeof val) // Stupid js?
+	return mapType(typeof val) // Stupid js?
 }
 
-function add_variable(var_, val, mod = null, _type = null) {
-	if (!(var_ instanceof Variable)) {
-		console.log("NOT a Variable: %s" % var_);
-		return var_;
+function add_variable(va, val, mod = null, typ = null) {
+	if (!(va instanceof Variable)) {
+		console.log("NOT a Variable: %s" % va);
+		return va;
 	}
-	var_.typed = ((_type || var_.typed) || ("typed" === mod)) && true; // redundant? no: autotype vs 'typed!'
-	if (!_type) _type = var_.type || get_type(val)
-	var_.type = _type
+	va.typed = ((typ || va.typed) || ("typed" === mod)) && true; // redundant? no: autotype vs 'typed!'
+	if (!typ) typ = va.type || get_type(val)
+	va.type = typ
+	console.log(va)
+	console.log(va.to_s())
 	if (val instanceof ast.FunctionCall) {
-		assure_same_type(var_, val.returns);
+		assure_same_type(va, val.returns);
 	} else {
-		assure_same_type(var_, _type);
+		assure_same_type(va, typ);
 	}
-	if (!variableValues[var_.name] || mod !== "default") {
-		the.variableValues[var_.name] = val;
-		the.variables[var_.name] = var_;
-		var_.value = val;
+	if (!variableValues[va.name] || mod !== "default") {
+		the.variableValues[va.name] = val;
+		the.variables[va.name] = va;
+		va.value = val;
 	}
-	the.token_map[var_.name] = known_variable;
-	var_.type = (_type || val && Object.getPrototypeOf(val));
-	var_.final = const_words.has(mod)
-	var_.modifier = mod;
-	the.variableTypes[var_.name] = var_.type;
-	return var_;
+	the.token_map[va.name] = known_variable;
+	va.type = (typ || val && Object.getPrototypeOf(val));
+	va.final = const_words.has(mod)
+	va.modifier = mod;
+	the.variableTypes[va.name] = va.type;
+	return va;
 }
 
 setter =

@@ -1,3 +1,4 @@
+let {Compare} = require("./ast")
 let {do_evaluate_property} = require("./values")
 
 let {Variable, Argument} = require('./nodes')
@@ -46,7 +47,7 @@ let {
 } = require('./english_parser')
 
 let {
-	action, do_evaluate, do_math, selfModify, method_call
+	action, do_evaluate, do_math, selfModify, method_call, piped_actions
 } = require('./actions')
 
 let {
@@ -667,6 +668,15 @@ function filters(liste, criterion) {
 	})
 }
 
+function isinstance(a, b) {
+	try {
+		return a instanceof b
+	} catch (ex) {
+		console.error(ex)
+		return false
+	}
+}
+
 function do_compare(a, comp, b) {
 	a = do_evaluate(a)  // NOT) "a=3; 'a' is 3" !!!!!!!!!!!!!!!!!!!!   Todo ooooooo!!
 	b = do_evaluate(b)
@@ -678,7 +688,7 @@ function do_compare(a, comp, b) {
 	if (comp === 'smaller' || comp === 'tinier' || comp === 'comes before' || comp === '<' || isinstance(comp, ast.Lt))
 		return a < b
 	else if (comp === 'bigger' || comp === 'larger' || comp === 'greater' || comp === 'comes after' || comp === '>' || isinstance(
-			comp, ast.Gt))
+		comp, ast.Gt))
 		return a > b
 	else if (comp === 'smaller || equal' || comp === '<=' || isinstance(comp, ast.LtE))
 		return a <= b
@@ -769,10 +779,10 @@ function property(container) {
 		let element = container[properti];
 		if(properti=="type"||properti=="kind"||properti=="class")
 			return isArray(container)?Array:mapType(element|| typeof container)
-			// if(container instanceof Variable){
-			// 	if(container.type) return container.type
-			// 	container=container.value
-			// }
+		// if(container instanceof Variable){
+		// 	if(container.type) return container.type
+		// 	container=container.value
+		// }
 		if (container instanceof Object /*todo*/) {
 			return element;
 		} else {
@@ -855,7 +865,7 @@ function contains_any(tokens) {
 }
 
 
-function condition() {
+function condition(left0) {
 	let brace, comp, cond, filter, left, negate, negated, quantifier, right, start, use_verb;
 	// start = pointer();
 	brace = maybe_token("(");
@@ -870,7 +880,7 @@ function condition() {
 		filter = (maybe(element_in) || maybe_tokens(["of", "in"]));
 	}
 	context.in_condition = true;
-	left = action_or_expression(quantifier);
+	left = left0 || action_or_expression(quantifier);
 	if (left instanceof ast.BinOp) {
 		left = new Compare({
 			left: left.left,
@@ -1090,6 +1100,8 @@ post_operations = function post_operations(result) {
 	}
 	if (the.current_word.in(be_words)) {
 		if (!context.in_condition && !context.in_args && !context.in_params) {
+			if (look_1_ahead("a"))// is a
+				return condition(result);
 			if (result instanceof Variable) {
 				return setter(result);
 			} else
@@ -1136,5 +1148,76 @@ post_operations = function post_operations(result) {
 	}
 	return false;
 }
+
+
+function is_comparator(c) {
+	let ok;
+	ok = c.in(comparison_words);
+	ok = (ok || c.in(class_words));
+	ok = (ok || (c instanceof ast.cmpop));
+	return ok;
+}
+
+
+function check_condition(cond = null, negate = false) {
+	let comp, left, right;
+	if ((cond === true) || (cond === "True")) {
+		return true;
+	}
+	if ((cond === false) || (cond === "False")) {
+		return false;
+	}
+	if (cond instanceof ast.BinOp) {
+		cond = new Compare({
+			left: cond.left,
+			comp: cond.op,
+			right: cond.right
+		});
+	}
+	if (cond instanceof Variable) {
+		return cond.value;
+	}
+	if ((cond === null) || (!(cond instanceof Compare))) {
+		throw new InternalError("NO Condition given! %s" % cond);
+	}
+	try {
+		left = cond.left;
+		right = cond.right;
+		comp = cond.comp;
+		if (!comp) {
+			return false;
+		}
+		if (left && is_string(left)) {
+			left = left.strip();
+		}
+		if (right && is_string(right)) {
+			right = right.strip();
+		}
+		if (is_string(comp)) {
+			comp = comp.strip();
+		}
+		if (is_comparator(comp)) {
+			the.result = do_compare(left, comp, right);
+		} else {
+			the.result = do_call(left, comp, right);
+		}
+		if (negate) {
+			the.result = (!the.result);
+		}
+		if (!the.result) {
+			warn("condition not met %s %s %s".format(left, comp, right));
+		}
+		warn("condition met %s %s %s".format(left, comp, right));
+		return the.result;
+	} catch (e) {
+		if (e instanceof IgnoreException) {
+			error(e);
+		} else {
+			throw e;
+		}
+	}
+	return false;
+}
+
 
 module.exports = {expression, subProperty, property, algebra, liste, evaluate_property, nth_item, hash_map, condition}

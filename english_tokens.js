@@ -74,11 +74,11 @@ possessive_pronouns = ["my", "your", "their", "his", "her", "hers", "theirs"];
 pronouns = ["I", "i", "me", "my", "mine", "myself", "we", "us", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "you", "your", "yours", "yourselves", "he", "him", "his", "himself", "they", "them", "their", "theirs", "themselves", "she", "her", "hers", "herself", "it", "its", "itself", "ye", "thou", "thee", "thy", "thine", "thyself"];
 interjections = ["ah", "aah", "aha", "ahem", "ahh", "argh", "aw", "bah", "boo", "brr", "eek", "eep", "eh", "eww", "gah", "grr", "hmm", "huh", "hurrah", "meh", "mhm", "mm", "muahaha", "nah", "nuh-uh", "oh", "ooh", "ooh-la-la", "oomph", "oops", "ow", "oy", "oy", "pff", "phew", "psst", "sheesh", "shh", "tsk-tsk", "uh-hu", "uh-uh", "uh-oh", "uhh", "wee", "whoa", "wow", "yeah", "yahoo", "yoo-hoo", "yuh-uh", "yuk", "zing"];
 fillers = ["like", "y'know", "so", "actually", "literally", "basically", "right", "I'm tellin' ya", "you know what I mean?", "ehm", "uh", "er"];
-class_words = ["is an", "is a", "has type", "is of type", "has class", "is of class", "is instance of", "is instance", "instance of"];
 subtype_words = ["inherits", "inherits from", "extends", "is subtype of", "is subtype", "subtype of", "is subclass of", "is subclass", "subclass of", "has base class"];
+class_words = ["is an", "is a", "has type", "is of type", "has class", "is of class", "is instance of", "is instance", "instance of"];
+class_be_words = ["is an", "is a"];
 to_be_words = ["is", "be", "are", ":=", "="];
 be_words = ["is", "be", "was", "are", "will be", "were", "have been", "shall be", "should be", ":=", "=", "==", "equals", "equal", "is equal to", "consist of", "consists of", "is made up of", "equal to", "same", "the same as", "same as", "the same"];
-class_be_words = ["is an", "is a"];
 comparison_words = ["be", "is of", "is in", "is a", "is", "subset of", "in", "are", "were", ">=", "==", "!=", "<=", "=<", "=", ">", "<", "\u2260", "\u2264", "\u2265", "~", "~=", "=~", "~~", "gt", "lt", "eq", "identical to", "smaller or equal", "greater or equal", "equal to", "bigger", "greater", "equals", "smaller", "less", "more", "the same as", "same as", "similar", "comes after", "inherits from", "implementscomes before", "exact", "exactly", "~>", "at least", "at most"];
 hash_assign = [":", "to", "=>", "->"];
 

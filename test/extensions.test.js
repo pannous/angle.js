@@ -1,4 +1,4 @@
-let {parser,assert_result_is}=require('./angle_base_test')
+let {parser, assert_result_is} = require('../angle_base_tester')
 // require('/me/dev/js/extensions.js')()
 require('../extensions.js')()
 // require('extensions')()

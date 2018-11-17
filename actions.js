@@ -10,10 +10,11 @@ let {
 	look_1_ahead,
 	maybe,
 	maybe_indent,
+	maybe_tokens,
+	method_allowed,
 	must_not_start_with,
 	must_contain,
 	must_contain_before,
-	maybe_tokens,
 	next_token,
 	no_rollback,
 	one_or_more,
@@ -28,7 +29,7 @@ let {
 	raise_not_matching
 } = require('./power_parser')
 require('./ast')
-const method_allowed = require("./power_parser").method_allowed;
+// const method_allowed = require("./power_parser").method_allowed;
 let {variable, typeNameMapped, word, quote} = require('./values')
 let {verb, spo} = require('./english_parser')
 // todo : untangle ^^
@@ -489,8 +490,8 @@ function bindMethod(method, obj) {
 function do_call(obj0, method0, args0 = [], method_name0 = 0) {
 	let args, bound, is_builtin, is_first_self, method, method_name, number_of_arguments, obj;
 	method_name = method_name0 || (method instanceof Function) && method.name || method0;
-	if (!method0) throw new Error("NO METHOD GIVEN %s %s".format(obj0, args0));
-	if (!method_allowed(method_name)) raise("not method_allowed " + method_name)
+	if (!method0) raise_not_matching("NO METHOD GIVEN %s %s".format(obj0, args0));
+	if (!method_allowed(method_name)) raise_not_matching("not method_allowed " + method_name)
 	if (!interpreting()) {
 		return new FunctionCall({
 			func: method0,
@@ -858,8 +859,10 @@ function do_math(a, op, b) {
 	if (op === 'isn\'t') return a !== b
 	if (op === '===') return a === b
 	if (op === '!==') return a !== b
-	if (op in class_words) return isinstance(a, b) || is_a(a, b)
-	if (op in subtype_words) return issubclass(a, b) || is_(a, b)
+	if (op in class_words)
+		return isinstance(a, b) || is_a(a, b)
+	if (op in subtype_words)
+		return issubclass(a, b) || is_(a, b)
 
 	throw new Error("UNKNOWN OPERATOR " + op);
 }

@@ -1,4 +1,4 @@
-require('./angle_base_test');
+require('../angle_base_tester');
 
 class BlockTest extends (ParserBaseTest) {
 

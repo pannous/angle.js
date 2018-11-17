@@ -1,4 +1,4 @@
-let {register, assert_has_error, assert_result_is, init, parser} = require('./angle_base_test');
+let {register, assert_has_error, assert_result_is, init, parser} = require('../angle_base_tester');
 let {hash_map} = require('../expressions')
 // context.use_tree = False
 // context.use_tree = true;

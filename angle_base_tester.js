@@ -1,8 +1,8 @@
-// require('./angle_base_test') // include in test files
+// require('../angle_base_tester') // include in test files
 // parser=
 // let {parse}=
-let {setVerbose,clear} = require('../angle_parser')
-let parser = require('../angle_parser')
+let {setVerbose, clear} = require('./angle_parser')
+let parser = require('./angle_parser')
 // console.log(parser) // setVerbose,
 // parser.dont_interpret=()=>dont_interpret() // why??
 // parser.clear=()=>clear() // why??
@@ -62,8 +62,9 @@ function assert_has_error(prog, type = "") {
 
 function assert_that(test, message) {
 	var ok=0
-	let {condition}= require('../expressions')
+	let {condition} = require('./expressions')
 	try{
+		if (test === true) return true
 		// ok=condition(test).result
 		ok=parse(test).result
 	}catch(ex){
@@ -111,6 +112,7 @@ function callerFile() {
 		}
 }
 var callsite= require('callsite');
+const Variable = require("./nodes").Variable;
 registered = {}
 // module.exports.register =
 registerTest = function (instance,test, modulus) {
@@ -131,7 +133,7 @@ registerTest = function (instance,test, modulus) {
 
 			console.error(exc.message)
 			let keep=1
-			exc.stack.forEach(function(site){
+			if (exc.stack) exc.stack.forEach(function (site) {
 				// if (site.match("anonymous")) keep = false
 					let functionName = site.getFunctionName();
 				if(!functionName) keep=false;
@@ -183,5 +185,25 @@ function register_tests() {
 	}
 }
 
+function assert_equals(a, b) {
+	if (a instanceof Variable) {
+		if (b instanceof Variable) {
+			assert_that(a == b || a.value == b.value, a + "!=" + b);
+		}
+		else
+			assert_that(a.value == b, a + "!=" + b);
+	}
+	else assert_that(a == b, a + "!=" + b);
+}
+
 setTimeout(() => register_tests(), 100)
-module.exports = {assert_has_error,register, assert_that,assert_result_is, parser, init: parser.init,clear:parser.clear}
+module.exports = {
+	assert_equals,
+	assert_has_error,
+	register,
+	assert_that,
+	assert_result_is,
+	parser,
+	init: parser.init,
+	clear: parser.clear
+}

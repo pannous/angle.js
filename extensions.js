@@ -550,6 +550,8 @@ String_Extensions = { // StringExtensions
 		return this.match(x + "$")
 	},
 	format(a = "", b = "", c = "", d = "", e = "", f = "", g = "") {
+		if (is_array(a) && !b)
+			return this.format.apply(a)
 		return util.format(this + "", a, b, c, d, e, f, g).strip()// Todo WHY +"" NECCESSARY????
 	},
 	grep(x) {
@@ -1593,7 +1595,7 @@ trimStack=function (ex,more=0) {
 		if(!x.match)x= x.getFileName()
 		// if(!x.match)return true
 		if(caller&&x.match(caller))return false
-		if (x.match("assert")) return false // sure?
+		// if (x.match("assert")) return false // sure?
 		if (x.match("backtrace")) return false
 		if (x.match("raise")) return false
 		if (x.match("anonymous")) keep = false

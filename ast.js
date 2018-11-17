@@ -97,6 +97,11 @@ class Str extends AST {
 }
 
 class Compare extends AST {
+	constructor(...margs) {
+		super()
+		var args = margs.length == 1 ? margs[0] : margs
+		Object.assign(this, args)
+	}
 }
 
 class FunctionDef extends AST {

@@ -496,14 +496,6 @@ function either_or() {
 	return v;
 }
 
-function is_comparator(c) {
-	let ok;
-	ok = c.in(comparison_words);
-	ok = (ok || c.in(class_words));
-	ok = (ok || (c instanceof ast.cmpop));
-	return ok;
-}
-
 function check_list_condition(quantifier, left, comp, right) {
 	let count, min, negated;
 	try {
@@ -543,66 +535,6 @@ function check_list_condition(quantifier, left, comp, right) {
 		if (!the.result) {
 			verbose("List condition not met %s %s %s".format(left, comp, right));
 		}
-		return the.result;
-	} catch (e) {
-		if (e instanceof IgnoreException) {
-			error(e);
-		} else {
-			throw e;
-		}
-	}
-	return false;
-}
-
-function check_condition(cond = null, negate = false) {
-	let comp, left, right;
-	if ((cond === true) || (cond === "True")) {
-		return true;
-	}
-	if ((cond === false) || (cond === "False")) {
-		return false;
-	}
-	if (cond instanceof ast.BinOp) {
-		cond = new Compare({
-			left: cond.left,
-			comp: cond.op,
-			right: cond.right
-		});
-	}
-	if (cond instanceof Variable) {
-		return cond.value;
-	}
-	if ((cond === null) || (!(cond instanceof Compare))) {
-		throw new InternalError("NO Condition given! %s" % cond);
-	}
-	try {
-		left = cond.left;
-		right = cond.right;
-		comp = cond.comp;
-		if (!comp) {
-			return false;
-		}
-		if (left && is_string(left)) {
-			left = left.strip();
-		}
-		if (right && is_string(right)) {
-			right = right.strip();
-		}
-		if (is_string(comp)) {
-			comp = comp.strip();
-		}
-		if (is_comparator(comp)) {
-			the.result = do_compare(left, comp, right);
-		} else {
-			the.result = do_call(left, comp, right);
-		}
-		if (negate) {
-			the.result = (!the.result);
-		}
-		if (!the.result) {
-			verbose("condition not met %s %s %s".format(left, comp, right));
-		}
-		verbose("condition met %s %s %s".format(left, comp, right));
 		return the.result;
 	} catch (e) {
 		if (e instanceof IgnoreException) {

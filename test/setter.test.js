@@ -1,4 +1,4 @@
-let {assert_has_error}=require('./angle_base_test')
+let {assert_has_error} = require('../angle_base_tester')
 // "use strict"
 // class SetterTest extends (ParserBaseTest) {
 no_exports = nexports = {}//IGNORE

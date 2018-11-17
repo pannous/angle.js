@@ -1,4 +1,4 @@
-let {register,assert_has_error,assert_result_is}=require('./angle_base_test');
+let {register, assert_has_error, assert_result_is} = require('../angle_base_tester');
 
 class BasicsTest extends (ParserBaseTest) {
 

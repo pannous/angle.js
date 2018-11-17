@@ -282,7 +282,7 @@ function parse_tokens(s) {
 	let tokenz = tokenizer().input(s)
 		.token(_token.BRACE, /\[/,token_helper)
 		.token(_token.BRACE, /\(/,token_helper)
-		.token(_token.BRACE, /\{/,token_helper)
+		.token(_token.BRACE, /{/, token_helper)
 		.token(_token.NUMBER, /\d*\.\d+/u, token_helper)
 		.token(_token.NUMBER, /\d+/u, token_helper)
 		.token(_token.WORD, /\w+/u, token_helper)
@@ -574,7 +574,7 @@ function read_source(x) {
 	res = (((x.source_location[0] + ":") + x.source_location[1].to_s) + "\n");
 	lines = IO.readlines(x.source_location[0]);
 	i = (x.source_location[1] - 1);
-	while (i < lines.length && !lines[i].match(/}/u) && !lines[i].match(/end/i)) {
+	while (i < lines.length && !lines[i].match(/\}/u) && !lines[i].match(/end/i)) {
 		res += lines[i];
 		i = (i + 1);
 	}
@@ -917,7 +917,8 @@ parse = function (s, target_file = null, clean = false) {
 		source_file = s.name;
 		s = readlines(s);
 	} else {
-		if (s.endswith("\\.e") || s.endswith("\.an")) {
+		if (is_string(s)) {
+			if (s.endswith("\\.e") || s.endswith("\.an")) {
 			target_file = (target_file || (s + ".pyc"));
 			source_file = s;
 			s = readlines(s);
@@ -925,7 +926,8 @@ parse = function (s, target_file = null, clean = false) {
 			source_file = s;
 			s = readlines(s); // todo
 			in_template=true // `hi ${you}` == "hi `you`"
-		} else  {
+			}
+			else {
 			source_file = "out/inline";
 			try {
 				open(source_file, "wt").write(s);
@@ -933,9 +935,12 @@ parse = function (s, target_file = null, clean = false) {
 				debug("no out directory");
 			}
 		}
+		} else {
+			throw "NO STRING " + s
+		}
 	}
 	if (context._debug) {
-		console.log("  File \"%s\", line 1" % source_file);
+		console.log("  File \"%s\", line 1".format(source_file));
 	}
 	if (s.length < 1000) {
 		verbose("--------PARSING:---------");
@@ -1127,6 +1132,7 @@ function method_allowed(meth) {
 		return true;
 	}
 	if (meth.length < 2) {
+		warn("meth.length < 2")
 		return false;
 	}
 	if (meth.in(["evaluate", "eval", "int", "True", "False", "true", "false", "the", "Invert", "char"])) {
@@ -1136,10 +1142,8 @@ function method_allowed(meth) {
 		// todo("No Upcase Methods!")
 		return false;
 	}
-	if (meth.in(keywords)) {
-		return false;
-	}
-	return true;
+	return !meth.in(keywords);
+
 }
 
 function load_module_methods() {
@@ -1212,8 +1216,8 @@ function must_not_start_with(words, whitelist) {
 	let bad = starts_with(words);
 	if (!bad) return OK
 	if (whitelist&&whitelist[bad]) return OK
-	if (bad) info("should_not_match DID match %s" % bad);
-	if (bad) throw new NotMatching("should_not_match DID match %s" % bad);
+	if (bad) info("should_not_match DID match %s".format(bad));
+	if (bad) throw new NotMatching("should_not_match DID match %s".format(bad));
 }
 
 

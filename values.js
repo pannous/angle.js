@@ -147,8 +147,11 @@ function known_variable(node = true) {
 	if (!interpreting()) {
 		return name(v0)
 	}
-	v = the.variables[v0];
-	return v;
+	v = variables.hasOwnProperty(v0)
+	console.log(v0, v)
+	let v1 = variables[v0];
+	console.log(v0, v, v1)
+	return v1;
 }
 
 function boole() {
@@ -178,8 +181,14 @@ function no_keyword(except) {
 	must_not_start_with(keywords, except)
 }
 
+class Context {
+	constructor(module) {
+		// this.module = module
+	}
+}
+
 function current_context() {
-	return module
+	return new Context(module)
 	// return todo("current_context")
 }
 
@@ -219,11 +228,11 @@ function new_variable(name,typ,ctx=ast.Store) {
 	oldVal = null;
 	the.result = new Variable({
 		name: name,
-		type: (typ || null),
-		scope: null,
-		module: current_context(),
 		value: oldVal,
-		ctx: ctx
+		type: (typ || null), // get_type(oldVal) ||
+		// scope: null,
+		// module: current_context(),
+		// ctx: ctx
 	})
 	the.variables[name] = the.result;
 	return the.result;

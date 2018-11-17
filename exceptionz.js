@@ -10,7 +10,13 @@ IgnoreException = class IgnoreException extends StandardError {}
 IgnoreException = class IgnoreException extends StandardError {}
 InternalError = class InternalError extends StandardError {}
 NoMethodError = class NoMethodError extends StandardError {}
-NotMatching = class NotMatching extends StandardError {}
+NotMatching = class NotMatching extends StandardError {
+	constructor(msg) {
+		if (!msg)
+			msg = "???"
+		super(msg)// for debug break
+	}
+}
 DidYouMean = class DidYouMean extends StandardError {}
 UnknownCommandError = class UnknownCommandError extends StandardError {}
 SecurityError = class SecurityError extends StandardError {}
