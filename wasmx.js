@@ -332,6 +332,7 @@ malloc = function (amount) {
 
 imports = {
 	global: {NaN: 0, Infinity, Math},
+	js:{print_ln:log,perf_counter:nop},// wasmfun
 	env: {
 		memory,
 		table,
@@ -345,6 +346,7 @@ imports = {
 
 
 		// _raise:x=>{throw new Error(string(x))},
+		// print_ln:logs,
 		_log, _logx, _logc, _logs, _logp, _logi, log16, //emcc
 		log, logc, logs, logx, logi: log, puts: logs, printf, print, putchar: logc, puts: logs, println: printf,
 		backtrace: debug("backtrace"),
@@ -422,7 +424,7 @@ function wasmx(file) {
 		STACK = HEAP || DATA_END
 		imports.env.memoryBase = DATA_END // too late
 		i = 0
-		while (i < DATA_END && !buffer[i++]) ;
+		while (i < DATA_END && !buffer[i++]&&i<2**32) ;
 		console.log("FIRST DATA ", i, " DATA_END ", DATA_END, " HEAP ", HEAP)
 		console.log("first data:")
 		logs(i, 100)
@@ -452,7 +454,7 @@ function wasmx(file) {
 		DATA_END = exports.__data_end
 		STACK = HEAP || DATA_END
 		i = 0
-		while (i < DATA_END && !buffer[i++]) ;
+		while (i < DATA_END && !buffer[i++] && i<2**32) ;
 		console.log("FIRST DATA ", i, " DATA_END ", DATA_END, " HEAP ", HEAP)
 
 		return result
@@ -462,7 +464,7 @@ function wasmx(file) {
 }
 
 if (file) wasmx(file) // else used as library
-
+else console.log("wasmx used as library")
 module.exports = {wasmx}
 
 

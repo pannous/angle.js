@@ -680,10 +680,8 @@ function isinstance(a, b) {
 function do_compare(a, comp, b) {
 	a = do_evaluate(a)  // NOT) "a=3; 'a' is 3" !!!!!!!!!!!!!!!!!!!!   Todo ooooooo!!
 	b = do_evaluate(b)
-	if (isinstance(b, float) && a.match(/^\+?\-?\.?\d/)) a = float(a)
-	if (isinstance(a, float) && b.match(/^\+?\-?\.?\d/)) b = float(b)
-	if (isinstance(b, int) && a.match(/^\+?\-?\.?\d/)) a = int(a)  // EEK PHP STYLE !? REALLY??
-	if (isinstance(a, int) && b.match(/^\+?\-?\.?\d/)) b = int(b)  // EEK PHP STYLE !? REALLY??
+	if (isinstance(b, Number) && a.match(/^\+?\-?\.?\d/)) a = float(a)
+	if (isinstance(a, Number) && b.match(/^\+?\-?\.?\d/)) b = float(b)
 	if (is_string(comp)) comp = comp.strip()
 	if (comp === 'smaller' || comp === 'tinier' || comp === 'comes before' || comp === '<' || isinstance(comp, ast.Lt))
 		return a < b
@@ -703,7 +701,7 @@ function do_compare(a, comp, b) {
 	else if (comp.in(class_words)) {
 		if (a === b || isinstance(a, b)) return True
 		if (isinstance(a, Variable)) return issubclass(a.type, b) || isinstance(a.value, b)
-		if (isinstance(a, type)) return issubclass(a, b) // issubclass? a bird is an animal OK
+		if (is_type(a)) return issubclass(a, b) // issubclass? a bird is an animal OK
 		return false
 	}
 	else if (comp === 'equal' || comp === 'the same' || comp === 'the same as' || comp === 'the same as' || comp === '=' || comp === '==')
@@ -711,7 +709,7 @@ function do_compare(a, comp, b) {
 	else if (comp === 'not equal' || comp === 'not the same' || comp === 'different' || comp === '!=' || comp === '≠')
 		return a !== b  //// Redundant
 	else if (comp.in(be_words) || isinstance(comp, (ast.Eq, ast.Eq)) || 'same'.in(comp))
-		return a === b || isinstance(b, type) && isinstance(a, b)
+		return a === b || is_type(b) && isinstance(a, b)
 	else
 		try {
 			return a.send(comp, b) // // raises!

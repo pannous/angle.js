@@ -13,7 +13,7 @@ require("./ast")
 require("./loops")
 let {Variable, Argument} = require('./nodes')
 let extensions = require('./extensions')();
-let exceptions = require('./exceptionz');
+let exceptions = require('./exception');
 let context = require('./context');
 let nodes = require('./nodes')
 the = context

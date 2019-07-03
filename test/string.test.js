@@ -188,6 +188,7 @@ class StringTest extends (ParserBaseTest) {
 		console.log(x)
 		assert_equals(x, 'hello world')
 		assert_equals(the.variables['x'].value, 'hello world');
+		assert_that(`x is a String`);
 		assert_that(`x is a string`);
 		assert_that(`type of x is string`);
 		assert_that(`class of x is string`);
@@ -241,4 +242,5 @@ class StringTest extends (ParserBaseTest) {
 setVerbose()
 // register(StringTest, module)
 module.exports.test_current = new StringTest().// test_class
-	test_type3
+	test_operations
+	// test_type3

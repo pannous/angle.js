@@ -1,6 +1,6 @@
 #!/usr/bin/env python;
 // var ast_export = require('ast_export');
-// from tests.parser_test_helper var * = require('*');
+// from parser_test_helper var * = require('*');
 
 // # = SkippingTest extends (#);
 class CompilerEquivalenceTest extends ParserBaseTest {

@@ -40,7 +40,7 @@ KeyboardInterrupt = class KeyboardInterrupt extends StandardError {} // TODO
 // UndeclaredVariable = class UndeclaredVariable extends NotMatching {}
 UndeclaredVariable = class UndeclaredVariable extends StandardError {}
 
-//# sourceMappingURL=exceptionz.js.map
+//# sourceMappingURL=exception.js.map
 exports = module.exports
 module.exports.StandardError = StandardError
 exports.InternalError = InternalError

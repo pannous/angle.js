@@ -651,6 +651,9 @@ String_Extensions = { // StringExtensions
 	unicode_length() {
 		return Array.from(this).length
 	},
+	normalize(){
+		return this //?
+	},
 	reverse() {
 		return Array.from(this.normalize()).reverse().join("")
 	},
@@ -1536,9 +1539,10 @@ mkdir = path => {
 }
 // module.exports.puts = puts
 
-is_type = x => x instanceof Function && x.constructor && true
 proto = x => type(x)
 type = x => x.constructor
+is_type = x => x instanceof Function && x.constructor && true
+
 // proto2=x=>x.prototype
 // function type(x) {
 // 	console.log("use typeof")

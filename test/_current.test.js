@@ -1,4 +1,4 @@
-let {UndeclaredVariable} =require( "../exceptionz")
+let {UndeclaredVariable} =require( "../exception")
 let {assert_has_error, assert_equals} = require('../angle_base_tester')
 
 
