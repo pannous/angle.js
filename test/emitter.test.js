@@ -149,7 +149,7 @@ class EmitterTest extends (ParserBaseTest) {
 
 
 	test_function_defs(){
-		skip()  // FUCKUP
+		skip()
 		parse(`def test{pass}`);
 		parse(`def test{pass};test`);
 		parse(`def test{puts 'yay'}`);
